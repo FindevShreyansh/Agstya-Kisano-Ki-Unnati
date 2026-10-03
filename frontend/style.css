@@ -1,0 +1,627 @@
+/* =========================================
+   GLOBAL RESET
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1f2937;
+    background: #ffffff;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+    width: 100%;
+    min-height: 75px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px 7%;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+
+/* LOGO */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 34px;
+}
+
+.logo h2 {
+    color: #166534;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.logo p {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+
+/* NAVIGATION */
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-links a {
+    font-size: 15px;
+    color: #374151;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    color: #166534;
+}
+
+
+/* BUTTONS */
+
+.login-btn {
+    padding: 9px 18px;
+    border: 1px solid #166534;
+    border-radius: 6px;
+
+    color: #166534 !important;
+}
+
+.register-btn,
+.primary-btn {
+    padding: 10px 20px;
+
+    background: #166534;
+    color: #ffffff !important;
+
+    border-radius: 6px;
+
+    transition: 0.3s;
+}
+
+.register-btn:hover,
+.primary-btn:hover {
+    background: #14532d;
+}
+
+
+/* =========================================
+   HERO SECTION
+========================================= */
+
+.hero {
+    min-height: 600px;
+
+    background: #f0fdf4;
+
+    display: flex;
+    align-items: center;
+
+    padding: 70px 7%;
+}
+
+.hero-content {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+
+    align-items: center;
+
+    gap: 60px;
+}
+
+.hero-tag {
+    color: #166534;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.hero h1 {
+    font-size: 52px;
+    line-height: 1.15;
+    color: #14532d;
+
+    margin-bottom: 20px;
+}
+
+.hero h1 span {
+    display: block;
+    color: #16a34a;
+}
+
+.hero-description {
+    max-width: 600px;
+
+    color: #4b5563;
+
+    font-size: 17px;
+
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.secondary-btn {
+    padding: 10px 20px;
+
+    border: 1px solid #166534;
+
+    border-radius: 6px;
+
+    color: #166534;
+
+    background: #ffffff;
+}
+
+
+/* HERO CARD */
+
+.hero-image {
+    display: flex;
+    justify-content: center;
+}
+
+.farm-card {
+    width: 350px;
+    min-height: 300px;
+
+    background: #ffffff;
+
+    border-radius: 15px;
+
+    padding: 50px 35px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.farm-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.farm-card h3 {
+    color: #14532d;
+    font-size: 25px;
+
+    margin-bottom: 10px;
+}
+
+.farm-card p {
+    color: #6b7280;
+}
+
+
+/* =========================================
+   COMMON SECTION
+========================================= */
+
+.section {
+    padding: 90px 7%;
+}
+
+.section-heading {
+    max-width: 750px;
+
+    margin: 0 auto 50px;
+
+    text-align: center;
+}
+
+.section-tag {
+    color: #16a34a;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 10px;
+}
+
+.section-heading h2 {
+    font-size: 36px;
+
+    color: #14532d;
+
+    margin-bottom: 15px;
+}
+
+.section-heading p {
+    color: #6b7280;
+}
+
+
+/* =========================================
+   ABOUT
+========================================= */
+
+.about {
+    background: #ffffff;
+}
+
+.about-cards {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 25px;
+}
+
+.about-card {
+    padding: 35px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    transition: 0.3s;
+}
+
+.about-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.card-icon {
+    font-size: 45px;
+
+    margin-bottom: 15px;
+}
+
+.about-card h3 {
+    color: #14532d;
+
+    margin-bottom: 10px;
+}
+
+.about-card p {
+    color: #6b7280;
+}
+
+
+/* =========================================
+   SERVICES
+========================================= */
+
+.services {
+    background: #f9fafb;
+}
+
+.services-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 25px;
+}
+
+.service-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    padding: 30px;
+
+    transition: 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+.service-icon {
+    font-size: 40px;
+
+    margin-bottom: 15px;
+}
+
+.service-card h3 {
+    color: #14532d;
+
+    margin-bottom: 10px;
+}
+
+.service-card p {
+    color: #6b7280;
+
+    margin-bottom: 15px;
+}
+
+.service-card a {
+    color: #16a34a;
+
+    font-weight: bold;
+}
+
+
+/* =========================================
+   HOW IT WORKS
+========================================= */
+
+.how-it-works {
+    background: #ffffff;
+}
+
+.steps {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 30px;
+}
+
+.step {
+    text-align: center;
+}
+
+.step-number {
+    width: 55px;
+    height: 55px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dcfce7;
+
+    color: #166534;
+
+    font-weight: bold;
+}
+
+.step h3 {
+    color: #14532d;
+
+    margin-bottom: 8px;
+}
+
+.step p {
+    color: #6b7280;
+}
+
+
+/* =========================================
+   CTA
+========================================= */
+
+.cta {
+    padding: 80px 7%;
+
+    background: #14532d;
+
+    text-align: center;
+
+    color: #ffffff;
+}
+
+.cta h2 {
+    font-size: 36px;
+
+    margin-bottom: 10px;
+}
+
+.cta p {
+    margin-bottom: 25px;
+
+    color: #dcfce7;
+}
+
+.cta .primary-btn {
+    display: inline-block;
+
+    background: #ffffff;
+
+    color: #14532d !important;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer {
+    background: #111827;
+
+    color: #ffffff;
+
+    padding: 60px 7% 20px;
+}
+
+.footer-content {
+    display: grid;
+
+    grid-template-columns: 2fr 1fr 1fr;
+
+    gap: 50px;
+}
+
+.footer-brand h2 {
+    color: #86efac;
+
+    margin-bottom: 5px;
+}
+
+.footer-brand p {
+    color: #9ca3af;
+}
+
+.footer-description {
+    max-width: 350px;
+
+    margin-top: 15px;
+}
+
+.footer-links {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.footer-links h3 {
+    margin-bottom: 10px;
+
+    color: #ffffff;
+}
+
+.footer-links a {
+    color: #9ca3af;
+
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: #86efac;
+}
+
+.footer-bottom {
+    border-top: 1px solid #374151;
+
+    margin-top: 40px;
+
+    padding-top: 20px;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 900px) {
+
+    .navbar {
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr;
+
+        text-align: center;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .about-cards,
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .steps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .hero {
+        padding: 50px 5%;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .about-cards,
+    .services-grid,
+    .steps,
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-links {
+        gap: 12px;
+    }
+
+    .farm-card {
+        width: 100%;
+    }
+
+}
