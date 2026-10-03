@@ -1,1 +1,268 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | AGSTYA - Kisano Ki Unnati</title>
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+
+        <div class="logo">
+            🌱 AGSTYA
+        </div>
+
+        <a href="index.html" class="home-link">
+            ← Back to Home
+        </a>
+
+    </header>
+
+
+    <!-- Login Section -->
+    <main class="login-container">
+
+        <div class="login-card">
+
+            <!-- Left Side -->
+            <div class="login-info">
+
+                <div class="info-icon">
+                    🌾
+                </div>
+
+                <h1>Welcome Back!</h1>
+
+                <p>
+                    Login to your AGSTYA account and continue
+                    your journey towards smarter and better
+                    agriculture.
+                </p>
+
+                <div class="benefits">
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Manage your crops</p>
+                    </div>
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Connect with buyers</p>
+                    </div>
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Access free soil testing</p>
+                    </div>
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Explore agricultural marketplace</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Right Side -->
+            <div class="login-form-section">
+
+                <div class="form-heading">
+
+                    <h2>Login</h2>
+
+                    <p>
+                        Enter your credentials to continue.
+                    </p>
+
+                </div>
+
+
+                <!-- Login Form -->
+                <form id="loginForm">
+
+                    <!-- Email -->
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                        >
+
+                        <small class="error-message" id="emailError"></small>
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                            >
+
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="password-toggle"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                        <small class="error-message" id="passwordError"></small>
+
+                    </div>
+
+
+                    <!-- Remember + Forgot Password -->
+                    <div class="form-options">
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                            >
+
+                            <span>Remember me</span>
+
+                        </label>
+
+                        <button
+                            type="button"
+                            id="forgotPassword"
+                            class="forgot-button"
+                        >
+                            Forgot Password?
+                        </button>
+
+                    </div>
+
+
+                    <!-- Login Button -->
+                    <button
+                        type="submit"
+                        class="login-button"
+                        id="loginButton"
+                    >
+                        Login
+                    </button>
+
+
+                    <!-- Success Message -->
+                    <div
+                        class="success-message"
+                        id="successMessage"
+                    ></div>
+
+
+                    <!-- Register -->
+                    <div class="register-section">
+
+                        <p>
+                            Don't have an account?
+                            <a href="register.html">
+                                Create Account
+                            </a>
+                        </p>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Forgot Password Modal -->
+    <div
+        class="modal-overlay"
+        id="forgotModal"
+    >
+
+        <div class="modal">
+
+            <button
+                type="button"
+                class="close-modal"
+                id="closeModal"
+            >
+                ×
+            </button>
+
+            <div class="modal-icon">
+                🔐
+            </div>
+
+            <h3>Reset Your Password</h3>
+
+            <p>
+                Enter your registered email address and
+                we will help you reset your password.
+            </p>
+
+            <input
+                type="email"
+                id="resetEmail"
+                placeholder="Enter your email"
+            >
+
+            <small
+                class="error-message"
+                id="resetError"
+            ></small>
+
+            <button
+                type="button"
+                class="reset-button"
+                id="resetButton"
+            >
+                Send Reset Link
+            </button>
+
+            <p
+                class="reset-success"
+                id="resetSuccess"
+            ></p>
+
+        </div>
+
+    </div>
+
+
+    <script src="login.js"></script>
+
+</body>
+</html>
