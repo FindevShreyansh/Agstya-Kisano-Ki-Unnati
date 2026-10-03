@@ -2,6 +2,7 @@
    AGSTYA LOGIN PAGE JAVASCRIPT
    ========================================= */
 
+const API_BASE_URL = window.AGSTYA_API_URL || "http://localhost:8080/api";
 const loginForm = document.getElementById("loginForm");
 
 const emailInput = document.getElementById("email");
@@ -13,6 +14,7 @@ const passwordError = document.getElementById("passwordError");
 const togglePassword = document.getElementById("togglePassword");
 
 const successMessage = document.getElementById("successMessage");
+const loginButton = document.getElementById("loginButton");
 
 const forgotPassword = document.getElementById("forgotPassword");
 const forgotModal = document.getElementById("forgotModal");
@@ -73,7 +75,7 @@ function isValidEmail(email) {
    LOGIN FORM
    ========================================= */
 
-loginForm.addEventListener("submit", function (event) {
+loginForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
@@ -81,6 +83,8 @@ loginForm.addEventListener("submit", function (event) {
     emailError.textContent = "";
     passwordError.textContent = "";
     successMessage.style.display = "none";
+    successMessage.style.backgroundColor = "";
+    successMessage.style.color = "";
 
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
@@ -124,16 +128,39 @@ loginForm.addEventListener("submit", function (event) {
     }
 
 
-    /* Login success */
-
     if (isValid) {
+        loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
 
-        successMessage.textContent =
-            "Login details are valid. Backend authentication will be connected later.";
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
 
-        successMessage.style.display = "block";
+            if (!response.ok) {
+                throw new Error(data.message || "Unable to log in.");
+            }
 
-        console.log("Login form submitted:", email);
+            localStorage.setItem("agstyaAuth", JSON.stringify(data));
+            successMessage.textContent = "Login successful. Redirecting...";
+            successMessage.style.display = "block";
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 600);
+        } catch (error) {
+            successMessage.textContent = error.message.includes("Failed to fetch")
+                ? "Unable to connect to the server. Please start the backend and try again."
+                : error.message;
+            successMessage.style.display = "block";
+            successMessage.style.backgroundColor = "#fff0ef";
+            successMessage.style.color = "#a52820";
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+        }
     }
 
 });
