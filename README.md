@@ -2,7 +2,7 @@
 
 **Soil test → Crop recommendation → Farmer marketplace**
 
-Node.js/Express backend + React frontend + MySQL database.
+Node.js/Express backend + HTML/CSS frontend+ MySQL database.
 
 ---
 
