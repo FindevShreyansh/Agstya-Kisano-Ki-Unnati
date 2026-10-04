@@ -1,6 +1,58 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { register, apiRequest } from "../api";
+import { useNavigate } from "react-router-dom";
 
 function FarmerRegister() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    state: "",
+    district: "",
+    areaAcres: "",
+    crop: "",
+  });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const updateField = (event) =>
+    setForm({ ...form, [event.target.name]: event.target.value });
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: "FARMER",
+      });
+
+      if (form.state && form.district && form.areaAcres) {
+        await apiRequest("/farms", {
+          method: "POST",
+          body: {
+            location: form.district,
+            district: form.district,
+            state: form.state,
+            areaAcres: Number(form.areaAcres),
+          },
+        });
+      }
+      navigate("/farmer/dashboard");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6 py-10">
 
@@ -38,7 +90,7 @@ function FarmerRegister() {
           </div>
 
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
 
             {/* Personal Information */}
             <div>
@@ -54,7 +106,10 @@ function FarmerRegister() {
                   </label>
 
                   <input
+                    name="name"
                     type="text"
+                    value={form.name}
+                    onChange={updateField}
                     placeholder="Enter your full name"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -67,7 +122,10 @@ function FarmerRegister() {
                   </label>
 
                   <input
+                    name="phone"
                     type="tel"
+                    value={form.phone}
+                    onChange={updateField}
                     placeholder="Enter mobile number"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -80,7 +138,10 @@ function FarmerRegister() {
                   </label>
 
                   <input
+                    name="email"
                     type="email"
+                    value={form.email}
+                    onChange={updateField}
                     placeholder="Enter email address"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -93,7 +154,10 @@ function FarmerRegister() {
                   </label>
 
                   <input
+                    name="password"
                     type="password"
+                    value={form.password}
+                    onChange={updateField}
                     placeholder="Create a password"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -117,8 +181,8 @@ function FarmerRegister() {
                     State
                   </label>
 
-                  <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-green-500">
-                    <option>Select state</option>
+                  <select name="state" value={form.state} onChange={updateField} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="">Select state</option>
                     <option>Karnataka</option>
                     <option>Uttar Pradesh</option>
                     <option>Maharashtra</option>
@@ -136,7 +200,10 @@ function FarmerRegister() {
                   </label>
 
                   <input
+                    name="district"
                     type="text"
+                    value={form.district}
+                    onChange={updateField}
                     placeholder="Enter district"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -151,7 +218,10 @@ function FarmerRegister() {
                   <div className="flex">
 
                     <input
+                      name="areaAcres"
                       type="number"
+                      value={form.areaAcres}
+                      onChange={updateField}
                       placeholder="e.g. 5"
                       className="w-full px-4 py-3 rounded-l-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -169,8 +239,8 @@ function FarmerRegister() {
                     Main Crop
                   </label>
 
-                  <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-green-500">
-                    <option>Select crop</option>
+                  <select name="crop" value={form.crop} onChange={updateField} className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="">Select crop</option>
                     <option>Rice</option>
                     <option>Wheat</option>
                     <option>Maize</option>
@@ -203,11 +273,14 @@ function FarmerRegister() {
 
 
             {/* Register Button */}
+            {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
+
             <button
               type="submit"
+              disabled={submitting}
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3.5 rounded-xl font-medium transition"
             >
-              Create Farmer Account →
+              {submitting ? "Creating account..." : "Create Farmer Account →"}
             </button>
 
           </form>

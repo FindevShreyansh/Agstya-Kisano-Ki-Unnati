@@ -39,19 +39,19 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ status: 400, message: 'email and password are required' });
+    return res.status(400).json({ status: 400, message: 'Email and Password are required' });
   }
 
   const normalEmail = email.trim().toLowerCase();
   const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [normalEmail]);
   if (rows.length === 0) {
-    return res.status(401).json({ status: 401, message: 'Invalid email or password' });
+    return res.status(401).json({ status: 401, message: 'Error: Invalid Email' });
   }
 
   const user = rows[0];
-  const ok   = await bcrypt.compare(password, user.password);
-  if (!ok) {
-    return res.status(401).json({ status: 401, message: 'Invalid email or password' });
+  const verify   = await bcrypt.compare(password, user.password);
+  if (!verify) {
+    return res.status(401).json({ status: 401, message: 'Error: Invalid Password' });
   }
 
   const token = jwt.sign(
