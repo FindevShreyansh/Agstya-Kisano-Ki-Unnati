@@ -1,4 +1,12 @@
 {
+  "name": "agstya-kisano-ki-unnati",
+  "private": true,
+  "scripts": {
+    "start": "npm run frontend",
+    "frontend": "npm --prefix react-frontend run dev",
+    "backend": "npm --prefix backend run dev",
+    "install:all": "npm install --prefix backend && npm install --prefix react-frontend"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "tailwindcss": "^4.3.3"

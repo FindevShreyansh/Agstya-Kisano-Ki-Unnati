@@ -23,9 +23,20 @@ const [profitResult, setProfitResult] = useState(null);
   const calculateProfit = () => {
   const { crop, land, cost, production, price } = cropData;
 
-  if (!crop || !land || !cost || !production || !price) {
+  if (!crop){
     alert("Please enter all crop details.");
     return;
+  } else if(!land){
+    alert("Error: Land not entered");
+    return;
+  } else if(!cost){
+    alert("Error: Enter Cost");
+    return;
+  } else if(!production){
+    alert("Error: Enter production");
+    return;
+  } else if(!price ){
+    alert("Error: Enter price");
   }
 
   const revenue = Number(production) * Number(price);

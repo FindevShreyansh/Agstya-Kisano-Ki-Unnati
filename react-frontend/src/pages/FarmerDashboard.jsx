@@ -1,5 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { apiRequest, clearSession } from "../api";
 function FarmerDashboard() {
+  const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    apiRequest("/dashboard/farmer")
+      .then(setDashboard)
+      .catch((requestError) => {
+        setError(requestError.message);
+        if (requestError.status === 401) navigate("/farmer/login");
+      });
+  }, [navigate]);
+
+  const logout = () => {
+    clearSession();
+    navigate("/farmer/login");
+  };
+
+  const user = JSON.parse(localStorage.getItem("agstya_user") || "{}");
+  const farm = dashboard?.farms?.[0];
+
   return (
     <div className="min-h-screen bg-[#F7FAF7]">
       
@@ -17,10 +40,10 @@ function FarmerDashboard() {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">
-              Welcome, Farmer 👨‍🌾
+              Welcome, {dashboard?.farmer?.name || user.name || "Farmer"} 👨‍🌾
             </span>
 
-            <button className="text-sm text-red-600 font-medium">
+            <button onClick={logout} className="text-sm text-red-600 font-medium">
               Logout
             </button>
           </div>
@@ -47,32 +70,34 @@ function FarmerDashboard() {
           <div className="bg-white rounded-2xl p-5 border border-green-100 shadow-sm">
             <p className="text-sm text-gray-500">Land Area</p>
             <h3 className="text-2xl font-bold text-gray-800 mt-2">
-              5 Acres
+              {farm?.areaAcres ?? "—"} Acres
             </h3>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-green-100 shadow-sm">
             <p className="text-sm text-gray-500">Current Crop</p>
             <h3 className="text-2xl font-bold text-gray-800 mt-2">
-              Rice 🌾
+              {farm?.mainCrop || "—"} 🌾
             </h3>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-green-100 shadow-sm">
             <p className="text-sm text-gray-500">Active Buyers</p>
             <h3 className="text-2xl font-bold text-gray-800 mt-2">
-              8
+              {dashboard?.purchaseRequestsReceived?.length ?? "—"}
             </h3>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-green-100 shadow-sm">
             <p className="text-sm text-gray-500">Potential Profit</p>
             <h3 className="text-2xl font-bold text-green-700 mt-2">
-              ₹48,000
+              —
             </h3>
           </div>
 
         </div>
+
+        {error && <p className="mb-6 text-sm text-red-600" role="alert">{error}</p>}
 
         {/* Main Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

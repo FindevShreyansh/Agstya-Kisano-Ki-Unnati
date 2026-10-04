@@ -1,8 +1,33 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { login } from "../api";
 
 function FarmerLogin() {
   const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      const user = await login(form);
+      if (user.role !== "FARMER") {
+        localStorage.removeItem("agstya_token");
+        localStorage.removeItem("agstya_user");
+        throw new Error("This login is only for farmer accounts.");
+      }
+      navigate("/farmer/dashboard");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6">
 
@@ -41,16 +66,18 @@ function FarmerLogin() {
 
 
           {/* Form */}
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mobile Number
+                Email
               </label>
 
               <input
-                type="tel"
-                placeholder="Enter your mobile number"
+                type="email"
+                value={form.email}
+                onChange={(event) => setForm({ ...form, email: event.target.value })}
+                placeholder="Enter your email address"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
@@ -63,6 +90,8 @@ function FarmerLogin() {
 
               <input
                 type="password"
+                value={form.password}
+                onChange={(event) => setForm({ ...form, password: event.target.value })}
                 placeholder="Enter your password"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
@@ -86,12 +115,14 @@ function FarmerLogin() {
             </div>
 
 
-            <button 
-            onClick={() => navigate("/farmer/dashboard")}
+            {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
+
+            <button
               type="submit"
+              disabled={submitting}
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3.5 rounded-xl font-medium transition"
             >
-              Login as Farmer →
+              {submitting ? "Signing in..." : "Login as Farmer →"}
             </button>
 
           </form>
