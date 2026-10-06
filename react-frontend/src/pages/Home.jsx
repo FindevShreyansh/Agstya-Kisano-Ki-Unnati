@@ -15,7 +15,7 @@ function Home() {
           </h1>
 
           <p className="text-xs text-gray-500">
-            Kisano Ki Unnati
+            किसानों की उन्नति
           </p>
         </div>
 

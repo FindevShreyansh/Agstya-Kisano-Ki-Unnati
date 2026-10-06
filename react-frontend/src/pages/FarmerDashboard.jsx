@@ -171,10 +171,36 @@ function FarmerDashboard() {
               View matched opportunities, procurement offers and orders.
             </p>
 
-            <button className="mt-5 text-green-700 font-semibold text-sm">
-              View Opportunities →
-            </button>
+            <Link
+              to="/farmer/procurement"
+               className="mt-5 inline-block text-green-700 font-semibold text-sm"
+             >
+               View Opportunities →
+             </Link>
           </div>
+
+
+{/* List My Crop */}
+<div className="bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+
+  <div className="text-3xl mb-4">🌾</div>
+
+  <h3 className="text-lg font-bold text-gray-800">
+    List My Crop
+  </h3>
+
+  <p className="text-sm text-gray-500 mt-2">
+    List your available crops so buyers can discover your produce.
+  </p>
+
+  <Link
+    to="/farmer/list-crop"
+    className="mt-5 inline-block text-green-700 font-semibold text-sm"
+  >
+    List Crop →
+  </Link>
+
+</div>
 
         </div>
 
