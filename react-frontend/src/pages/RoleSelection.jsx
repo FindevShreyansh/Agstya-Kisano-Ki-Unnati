@@ -34,7 +34,10 @@ function RoleSelection() {
           </p>
         </div>
 
-        <button className="text-sm text-gray-600 hover:text-green-700">
+        <button 
+          onClick={() => navigate("/")}
+          className="text-sm text-gray-600 hover:text-green-700"
+        >
           ← Back
         </button>
       </header>
@@ -83,7 +86,16 @@ function RoleSelection() {
                 {role.description}
               </p>
 
-              <button onClick={() => navigate("/farmer/login")} className="w-full py-3 rounded-xl bg-green-700 text-white font-medium hover:bg-green-800 transition">
+              <button 
+                onClick={() => {
+                  if (role.title === "Buyer") {
+                    navigate("/buyer/login");
+                  } else {
+                    navigate("/farmer/login");
+                  }
+                }} 
+                className="w-full py-3 rounded-xl bg-green-700 text-white font-medium hover:bg-green-800 transition"
+              >
                 Continue as {role.title}
               </button>
 
