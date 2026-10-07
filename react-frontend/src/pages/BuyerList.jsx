@@ -173,6 +173,7 @@ const filteredBuyers = selectedCrop
     {/* Farmer sends interest to the selected buyer */}
 <button
   onClick={() =>{
+    
     setInterestSentTo(selectedBuyer.name);
   }}
   className="mt-6 mr-4 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-semibold"
