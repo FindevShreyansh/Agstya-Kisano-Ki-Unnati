@@ -1,17 +1,31 @@
 import { Link } from "react-router-dom";
+import { useNotifications } from "../hooks/useNotifications";
 
 function BuyerDashboard() {
+  const { unreadCount } = useNotifications("buyer");
+
   return (
     <div className="min-h-screen bg-[#F7FAF7]">
       {/* Navbar */}
       <nav className="bg-white border-b border-green-100 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           <div>
             <h1 className="text-2xl font-bold text-green-800">AGSTYA</h1>
             <p className="text-xs text-gray-500">Kisano Ki Unnati • Buyer Portal</p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
+            <Link
+              to="/buyer/notifications"
+              className="text-sm text-green-700 font-medium hover:underline"
+            >
+              🔔 Notifications
+              {unreadCount > 0 && (
+                <span className="ml-1 rounded-full bg-green-700 px-2 py-0.5 text-xs text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
             <span className="text-sm text-gray-600">
               Welcome, Buyer 🏢
             </span>
@@ -148,6 +162,23 @@ function BuyerDashboard() {
               className="mt-5 inline-block text-green-700 font-semibold text-sm hover:underline"
             >
               Business Profile →
+            </Link>
+          </div>
+
+          {/* Module 5: Notifications */}
+          <div className="bg-white rounded-2xl p-6 border border-green-100 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+            <div>
+              <div className="text-3xl mb-4">🔔</div>
+              <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Review new farmer interest, crop matches, and procurement requests.
+              </p>
+            </div>
+            <Link
+              to="/buyer/notifications"
+              className="mt-5 inline-block text-green-700 font-semibold text-sm hover:underline"
+            >
+              View Notifications ({unreadCount} unread) →
             </Link>
           </div>
         </div>

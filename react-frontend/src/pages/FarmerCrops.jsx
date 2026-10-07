@@ -22,9 +22,12 @@ function FarmerCrops() {
   const [selectedListing, setSelectedListing] = useState(null);
 
   // Tracks which listing IDs the buyer has already sent a request to.
-  // Using a Set avoids a single global boolean — only the specific
-  // listing shows the success message.
+  // Keep this separate from the selected request so sent requests cannot
+  // accidentally be submitted more than once.
   const [requestsSentTo, setRequestsSentTo] = useState(new Set());
+
+  // The farmer whose request feedback is currently selected.
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
 
   // ── Mock farmer crop listings ─────────────────────────────────────
   // Each object represents a crop that a farmer has listed on the platform.
@@ -146,6 +149,7 @@ function FarmerCrops() {
    */
   const handleSendRequest = (listingId) => {
     setRequestsSentTo((prev) => new Set(prev).add(listingId));
+    setSelectedRequestId(listingId);
   };
 
   // Helper: emoji for each crop
@@ -349,14 +353,14 @@ function FarmerCrops() {
                 </p>
 
                 {/* Request-sent success for THIS listing only */}
-                {requestsSentTo.has(listing.id) && (
+                {selectedRequestId === listing.id && (
                   <p className="text-sm text-green-700 font-semibold mb-2 flex items-center gap-1">
                     ✅ Procurement request sent successfully to {listing.farmerName}.
                   </p>
                 )}
 
-                {/* A request status appears only on listings with a sent request. */}
-                {requestsSentTo.has(listing.id) && (
+                {/* Show request status only for the currently selected farmer. */}
+                {selectedRequestId === listing.id && (
                   <p className="text-xs text-green-700 mb-3">
                     Request Status: <span className="font-semibold">Request Sent</span>
                   </p>
@@ -494,9 +498,11 @@ function FarmerCrops() {
               {/* Only show "Send Request" if not already sent for this listing */}
               {requestsSentTo.has(selectedListing.id) ? (
                 <div className="text-green-700 text-sm">
-                  <p className="font-semibold">
-                    ✅ Procurement request sent successfully to {selectedListing.farmerName}.
-                  </p>
+                  {selectedRequestId === selectedListing.id && (
+                    <p className="font-semibold">
+                      ✅ Procurement request sent successfully to {selectedListing.farmerName}.
+                    </p>
+                  )}
                   <p className="mt-1">
                     Request Status: <span className="font-semibold">Request Sent</span>
                   </p>

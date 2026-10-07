@@ -14,7 +14,7 @@ function Home() {
             AGSTYA
           </h1>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 text-b">
             किसानों की उन्नति
           </p>
         </div>

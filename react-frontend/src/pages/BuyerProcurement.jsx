@@ -1,345 +1,260 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-/**
- * BuyerProcurement.jsx — Phase 3
- * 
- * This page allows buyers to track their procurement requests sent to farmers.
- * It features a visual status tracker, status filtering, and detailed view.
- * Uses mock React state for now.
- */
+// Local sample requests let buyers review farmer interest without a backend.
+const initialRequests = [
+  {
+    id: "FPR-1001",
+    farmerName: "Ramesh Kumar",
+    crop: "Rice",
+    quantity: 3000,
+    expectedPrice: 42,
+    quality: "Grade A",
+    location: "Mandya, Karnataka",
+    requestDate: "2026-10-02",
+    status: "Pending",
+    feedback: "",
+  },
+  {
+    id: "FPR-1002",
+    farmerName: "Anita Devi",
+    crop: "Rice",
+    quantity: 5000,
+    expectedPrice: 38,
+    quality: "Grade B",
+    location: "Raichur, Karnataka",
+    requestDate: "2026-10-04",
+    status: "Accepted",
+    feedback: "",
+  },
+  {
+    id: "FPR-1003",
+    farmerName: "Suresh Patil",
+    crop: "Wheat",
+    quantity: 2000,
+    expectedPrice: 30,
+    quality: "Grade A",
+    location: "Dharwad, Karnataka",
+    requestDate: "2026-10-05",
+    status: "Rejected",
+    feedback: "",
+  },
+  {
+    id: "FPR-1004",
+    farmerName: "Manoj Reddy",
+    crop: "Maize",
+    quantity: 4000,
+    expectedPrice: 22,
+    quality: "Grade A",
+    location: "Davangere, Karnataka",
+    requestDate: "2026-10-06",
+    status: "Pending",
+    feedback: "",
+  },
+];
 
 function BuyerProcurement() {
-  // Define procurement stages in order
-  const stages = [
-    "Request Sent",
-    "Farmer Accepted",
-    "Pickup Scheduled",
-    "In Transit",
-    "Delivered"
-  ];
+  const [requests, setRequests] = useState(initialRequests);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
 
-  // 1. Mock Data: Realistic sample procurement requests
-  const mockRequests = [
-    {
-      id: "PRQ-1001",
-      buyerName: "Bangalore Rice Traders (You)",
-      farmerName: "Ramesh Kumar",
-      crop: "Rice",
-      quantity: "3000 kg",
-      price: "₹42/kg",
-      location: "Mandya, Karnataka",
-      requestDate: "2026-10-02",
-      status: "In Transit",
-      deliveryAddress: "APMC Yard, Yeshwanthpur, Bangalore",
-      notes: "Driver contacted. Expected arrival by evening."
-    },
-    {
-      id: "PRQ-1002",
-      buyerName: "Bangalore Rice Traders (You)",
-      farmerName: "Suresh Patil",
-      crop: "Wheat",
-      quantity: "2000 kg",
-      price: "₹30/kg",
-      location: "Dharwad, Karnataka",
-      requestDate: "2026-10-05",
-      status: "Request Sent",
-      deliveryAddress: "APMC Yard, Yeshwanthpur, Bangalore",
-      notes: "Awaiting farmer confirmation."
-    },
-    {
-      id: "PRQ-1003",
-      buyerName: "Bangalore Rice Traders (You)",
-      farmerName: "Lakshmi Bai",
-      crop: "Potato",
-      quantity: "1500 kg",
-      price: "₹18/kg",
-      location: "Hassan, Karnataka",
-      requestDate: "2026-09-28",
-      status: "Delivered",
-      deliveryAddress: "Cold Storage Unit 4, Bangalore",
-      notes: "Quality verified upon delivery. Payment cleared."
-    },
-    {
-      id: "PRQ-1004",
-      buyerName: "Bangalore Rice Traders (You)",
-      farmerName: "Manoj Reddy",
-      crop: "Maize",
-      quantity: "4000 kg",
-      price: "₹22/kg",
-      location: "Davangere, Karnataka",
-      requestDate: "2026-10-04",
-      status: "Farmer Accepted",
-      deliveryAddress: "Feed Mill, Tumkur",
-      notes: "Farmer accepted the price. Need to schedule logistics."
-    }
-  ];
+  // Derive dashboard totals from each request's own status.
+  const summary = {
+    total: requests.length,
+    pending: requests.filter((request) => request.status === "Pending").length,
+    accepted: requests.filter((request) => request.status === "Accepted").length,
+    rejected: requests.filter((request) => request.status === "Rejected").length,
+  };
 
-  // 2. React State for Filtering and Selected Request
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  // Update only the targeted request so status and feedback remain independent.
+  const updateRequestStatus = (requestId, status) => {
+    const farmerName = requests.find((request) => request.id === requestId)?.farmerName;
+    const feedback =
+      status === "Accepted"
+        ? `Request from ${farmerName} accepted.`
+        : `Request from ${farmerName} rejected.`;
 
-  // Filter logic
-  const filteredRequests = mockRequests.filter(req => {
-    if (filterStatus === "All") return true;
-    return req.status === filterStatus;
-  });
-
-  // Helper function to render the visual progress tracker
-  const renderProgressTracker = (currentStatus) => {
-    const currentIndex = stages.indexOf(currentStatus);
-    
-    return (
-      <div className="mt-6">
-        <p className="text-sm font-semibold text-gray-700 mb-3">
-          Procurement Progress
-        </p>
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          {stages.map((stage, index) => {
-            // Determine styles based on stage position relative to current status
-            let badgeStyle = "bg-gray-100 text-gray-400"; // Default (Upcoming)
-            let icon = `${index + 1}.`;
-
-            if (index < currentIndex) {
-              // Completed stages
-              badgeStyle = "bg-green-100 text-green-700";
-              icon = "✓";
-            } else if (index === currentIndex) {
-              // Current active stage
-              badgeStyle = "bg-green-600 text-white shadow-md ring-2 ring-green-200";
-              icon = "📍";
-            }
-
-            return (
-              <span 
-                key={stage} 
-                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all duration-300 ${badgeStyle}`}
-              >
-                {icon} {stage}
-              </span>
-            );
-          })}
-        </div>
-      </div>
+    setRequests((currentRequests) =>
+      currentRequests.map((request) =>
+        request.id === requestId ? { ...request, status, feedback } : request
+      )
     );
   };
 
+  const statusClasses = {
+    Pending: "bg-amber-100 text-amber-800",
+    Accepted: "bg-green-100 text-green-800",
+    Rejected: "bg-red-100 text-red-800",
+  };
+
+  const statCards = [
+    { label: "Total Requests", value: summary.total, style: "border-green-100 text-gray-800" },
+    { label: "Pending", value: summary.pending, style: "border-amber-100 text-amber-700" },
+    { label: "Accepted", value: summary.accepted, style: "border-green-100 text-green-700" },
+    { label: "Rejected", value: summary.rejected, style: "border-red-100 text-red-700" },
+  ];
+
+  const selectedRequest = requests.find(
+    (request) => request.id === selectedRequestId
+  );
+
   return (
     <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
-      {/* Top Navbar */}
-      <nav className="bg-white border-b border-green-100 px-6 py-4 sticky top-0 z-10">
+      <nav className="bg-white border-b border-green-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-green-800">AGSTYA</h1>
-            <p className="text-xs text-gray-500">Kisano Ki Unnati • Buyer Portal</p>
+            <p className="text-xs text-gray-500">
+              Kisano Ki Unnati • Buyer Portal
+            </p>
           </div>
-
           <Link
             to="/buyer/dashboard"
-            className="text-sm text-green-700 hover:text-green-800 font-medium flex items-center gap-1"
+            className="text-sm text-green-700 hover:text-green-800 font-medium"
           >
-            ← Back to Dashboard
+            ← Back to Buyer Dashboard
           </Link>
         </div>
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-8 w-full flex-1">
-        {/* Page Header */}
-        <div className="mb-8">
+        <header className="mb-8">
           <span className="inline-block bg-green-100 text-green-800 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-3">
-            📦 Logistics & Tracking
+            📦 Farmer Requests
           </span>
           <h2 className="text-3xl font-bold text-gray-800">
             Procurement Requests
           </h2>
           <p className="text-gray-500 mt-2">
-            Track the status of your crop orders from farmers, manage logistics, and view delivery updates.
+            Review crop offers and interest received from farmers.
           </p>
-        </div>
+        </header>
 
-        {/* Filters and Controls */}
-        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-green-100 shadow-sm">
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">
-              Filter Status:
-            </label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full sm:w-64 border border-gray-300 rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+        {/* Summary counts always reflect the current request statuses. */}
+        <section
+          aria-label="Request summary"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        >
+          {statCards.map((card) => (
+            <div
+              key={card.label}
+              className={`bg-white rounded-2xl p-5 border shadow-sm ${card.style.split(" ")[0]}`}
             >
-              <option value="All">All Requests</option>
-              {stages.map(stage => (
-                <option key={stage} value={stage}>{stage}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
-            Showing <strong className="text-gray-800">{filteredRequests.length}</strong> request(s)
-          </div>
-        </div>
-
-        {/* Requests List */}
-        <div className="space-y-6">
-          {filteredRequests.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-3xl border border-green-100 shadow-sm">
-              <span className="text-5xl">📭</span>
-              <h3 className="text-xl font-bold text-gray-700 mt-4">No matching requests</h3>
-              <p className="text-gray-500 mt-2">Try selecting a different status filter.</p>
+              <p className="text-sm text-gray-500">{card.label}</p>
+              <p className={`text-2xl font-bold mt-1 ${card.style.split(" ")[1]}`}>
+                {card.value}
+              </p>
             </div>
-          ) : (
-            filteredRequests.map((request) => (
-              <div
-                key={request.id}
-                className="bg-white rounded-3xl p-6 md:p-8 border border-green-100 shadow-sm hover:shadow-md transition-shadow"
-              >
-                {/* Header: IDs and Date */}
-                <div className="flex flex-wrap justify-between items-start gap-4 mb-5 pb-5 border-b border-gray-100">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                      <span className="text-2xl">👨‍🌾</span> {request.farmerName}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Request ID: <span className="font-medium">{request.id}</span> • Date: {request.requestDate}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                      request.status === "Delivered" ? "bg-green-100 text-green-800" :
-                      request.status === "In Transit" ? "bg-blue-100 text-blue-800" :
-                      "bg-yellow-100 text-yellow-800"
-                    }`}>
-                      {request.status}
-                    </span>
-                  </div>
+          ))}
+        </section>
+
+        <section aria-label="Farmer procurement requests" className="space-y-5">
+          {requests.map((request) => (
+            <article
+              key={request.id}
+              className="bg-white rounded-2xl p-5 md:p-6 border border-green-100 shadow-sm"
+            >
+              <div className="flex flex-wrap justify-between items-start gap-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    👨‍🌾 {request.farmerName}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Request {request.id} · Submitted {request.requestDate}
+                  </p>
                 </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${statusClasses[request.status]}`}
+                >
+                  {request.status}
+                </span>
+              </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 text-sm text-gray-700">
-                  <div className="bg-gray-50 p-3 rounded-xl">
-                    <p className="text-gray-500 text-xs mb-1">Crop</p>
-                    <p className="font-semibold text-base">{request.crop}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-xl">
-                    <p className="text-gray-500 text-xs mb-1">Quantity</p>
-                    <p className="font-semibold text-base">{request.quantity}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-xl">
-                    <p className="text-gray-500 text-xs mb-1">Agreed Price</p>
-                    <p className="font-semibold text-base text-green-700">{request.price}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-xl">
-                    <p className="text-gray-500 text-xs mb-1">Location</p>
-                    <p className="font-semibold text-base truncate" title={request.location}>{request.location}</p>
-                  </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5 text-sm">
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-xs text-gray-500">Crop</p>
+                  <p className="font-semibold text-gray-800 mt-1">{request.crop}</p>
                 </div>
-
-                {/* Visual Tracker */}
-                {renderProgressTracker(request.status)}
-
-                {/* Actions */}
-                <div className="mt-8 pt-5 border-t border-gray-100 flex justify-end">
-                  <button
-                    onClick={() => setSelectedRequest(request)}
-                    className="bg-green-50 text-green-700 hover:bg-green-700 hover:text-white px-6 py-2.5 rounded-xl font-semibold transition-colors duration-200"
-                  >
-                    View Details →
-                  </button>
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-xs text-gray-500">Quantity</p>
+                  <p className="font-semibold text-gray-800 mt-1">
+                    {request.quantity.toLocaleString()} kg
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-xs text-gray-500">Expected Price</p>
+                  <p className="font-semibold text-green-700 mt-1">
+                    ₹{request.expectedPrice}/kg
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-xs text-gray-500">Quality</p>
+                  <p className="font-semibold text-gray-800 mt-1">{request.quality}</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-xl col-span-2">
+                  <p className="text-xs text-gray-500">Location</p>
+                  <p className="font-semibold text-gray-800 mt-1">{request.location}</p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+
+              {request.feedback && (
+                <p
+                  role="status"
+                  className={`mt-4 text-sm font-semibold ${
+                    request.status === "Accepted" ? "text-green-700" : "text-red-700"
+                  }`}
+                >
+                  {request.feedback}
+                </p>
+              )}
+
+              <div className="mt-5 pt-4 border-t border-gray-100 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedRequestId((currentId) =>
+                      currentId === request.id ? null : request.id
+                    )
+                  }
+                  className="px-4 py-2 rounded-xl border border-green-200 text-green-700 hover:bg-green-50 text-sm font-semibold transition"
+                >
+                  {selectedRequestId === request.id ? "Hide Details" : "View Details"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateRequestStatus(request.id, "Accepted")}
+                  disabled={request.status !== "Pending"}
+                  className="px-4 py-2 rounded-xl bg-green-700 hover:bg-green-800 disabled:bg-green-300 disabled:cursor-not-allowed text-white text-sm font-semibold transition"
+                >
+                  Accept Request
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateRequestStatus(request.id, "Rejected")}
+                  disabled={request.status !== "Pending"}
+                  className="px-4 py-2 rounded-xl bg-white border border-red-200 text-red-700 hover:bg-red-50 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed text-sm font-semibold transition"
+                >
+                  Reject Request
+                </button>
+              </div>
+
+              {selectedRequest?.id === request.id && (
+                <div className="mt-4 rounded-xl bg-green-50 border border-green-100 p-4 text-sm text-gray-700">
+                  <p>
+                    <span className="font-semibold">Request Date:</span>{" "}
+                    {request.requestDate}
+                  </p>
+                  <p className="mt-1">
+                    <span className="font-semibold">Current Status:</span>{" "}
+                    {request.status}
+                  </p>
+                </div>
+              )}
+            </article>
+          ))}
+        </section>
       </main>
 
-      {/* Detailed Modal/Overlay View */}
-      {selectedRequest && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in">
-            {/* Modal Header */}
-            <div className="bg-green-700 text-white px-6 py-5 flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-bold">Procurement Details</h2>
-                <p className="text-green-100 text-sm opacity-90">{selectedRequest.id}</p>
-              </div>
-              <button 
-                onClick={() => setSelectedRequest(null)}
-                className="text-white hover:text-green-200 bg-green-800 hover:bg-green-900 rounded-full w-8 h-8 flex items-center justify-center transition"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 md:p-8 overflow-y-auto max-h-[70vh]">
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Summary</h3>
-                <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                  <div>
-                    <span className="block text-gray-500 text-xs">Buyer</span>
-                    <strong className="text-gray-800">{selectedRequest.buyerName}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 text-xs">Farmer</span>
-                    <strong className="text-gray-800">{selectedRequest.farmerName}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 text-xs">Item</span>
-                    <strong className="text-gray-800">{selectedRequest.quantity} of {selectedRequest.crop}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 text-xs">Agreed Price</span>
-                    <strong className="text-green-700">{selectedRequest.price}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 text-xs">Request Date</span>
-                    <strong className="text-gray-800">{selectedRequest.requestDate}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 text-xs">Current Status</span>
-                    <strong className="text-gray-800">{selectedRequest.status}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Logistics</h3>
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3 text-sm">
-                  <p>
-                    <span className="font-semibold text-gray-700">Pickup Location:</span> <br/>
-                    {selectedRequest.location}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-gray-700">Delivery Address:</span> <br/>
-                    {selectedRequest.deliveryAddress}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Latest Notes</h3>
-                <p className="text-sm text-gray-600 bg-yellow-50 p-4 rounded-xl border border-yellow-100 italic">
-                  "{selectedRequest.notes}"
-                </p>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
-              <button 
-                onClick={() => setSelectedRequest(null)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-xl transition"
-              >
-                Close View
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="text-center py-6 text-sm text-gray-400 border-t border-gray-100 bg-white mt-auto">
+      <footer className="text-center py-6 text-sm text-gray-400 border-t border-gray-100 bg-white">
         AGSTYA – Kisano Ki Unnati • Empowering Farmers & Buyers 🌱
       </footer>
     </div>

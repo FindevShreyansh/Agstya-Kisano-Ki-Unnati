@@ -1,31 +1,14 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../api";
 
 function FarmerLogin() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setError("");
-    setSubmitting(true);
-    try {
-      const user = await login(form);
-      if (user.role !== "FARMER") {
-        localStorage.removeItem("agstya_token");
-        localStorage.removeItem("agstya_user");
-        throw new Error("This login is only for farmer accounts.");
-      }
-      navigate("/farmer/dashboard");
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setSubmitting(false);
-    }
+    navigate("/farmer/dashboard");
   };
 
   return (
@@ -40,7 +23,7 @@ function FarmerLogin() {
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Kisano Ki Unnati
+            किसानों की उन्नति
           </p>
         </div>
 
@@ -115,14 +98,11 @@ function FarmerLogin() {
             </div>
 
 
-            {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
-
             <button
               type="submit"
-              disabled={submitting}
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3.5 rounded-xl font-medium transition"
             >
-              {submitting ? "Signing in..." : "Login as Farmer →"}
+              Login as Farmer →
             </button>
 
           </form>

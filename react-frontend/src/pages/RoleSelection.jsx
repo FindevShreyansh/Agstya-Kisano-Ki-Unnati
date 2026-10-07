@@ -90,6 +90,8 @@ function RoleSelection() {
                 onClick={() => {
                   if (role.title === "Buyer") {
                     navigate("/buyer/login");
+                  } else if (role.title === "Admin") {
+                    navigate("/admin/login");
                   } else {
                     navigate("/farmer/login");
                   }

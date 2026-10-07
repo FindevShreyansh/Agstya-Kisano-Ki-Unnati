@@ -16,6 +16,14 @@ import PostRequirement from "./pages/PostRequirement";
 import FarmerCrops from "./pages/FarmerCrops";
 import BuyerProcurement from "./pages/BuyerProcurement";
 import BuyerProfile from "./pages/BuyerProfile";
+import FarmerNotifications from "./pages/FarmerNotifications";
+import BuyerNotifications from "./pages/BuyerNotifications";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminFarmers from "./pages/AdminFarmers";
+import AdminBuyers from "./pages/AdminBuyers";
+import AdminCropListings from "./pages/AdminCropListings";
+import AdminProcurement from "./pages/AdminProcurement";
 
 function App() {
   return (
@@ -32,6 +40,7 @@ function App() {
       <Route path="/farmer/buyers" element={<BuyerList />}/>  
       <Route path="/farmer/procurement" element={<Procurement />}/>
       <Route path="/farmer/list-crop" element={<ListCrop />}/>
+      <Route path="/farmer/notifications" element={<FarmerNotifications />} />
 
       {/* Buyer Routes */}
       <Route path="/buyer/login" element={<BuyerLogin />} />
@@ -40,6 +49,15 @@ function App() {
       <Route path="/buyer/crops" element={<FarmerCrops />} />
       <Route path="/buyer/procurement" element={<BuyerProcurement />} />
       <Route path="/buyer/profile" element={<BuyerProfile />} />
+      <Route path="/buyer/notifications" element={<BuyerNotifications />} />
+
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/farmers" element={<AdminFarmers />} />
+      <Route path="/admin/buyers" element={<AdminBuyers />} />
+      <Route path="/admin/crops" element={<AdminCropListings />} />
+      <Route path="/admin/procurement" element={<AdminProcurement />} />
     </Routes>
   );
 }
