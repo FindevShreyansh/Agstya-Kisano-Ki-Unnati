@@ -43,6 +43,13 @@ function FarmerDashboard() {
       action: "Check Soil",
     },
     {
+      title: "Book Soil Analysis Expert",
+      description: "Arrange a field visit with our team for professional soil analysis.",
+      icon: "🧪",
+      link: "/farmer/book-expert",
+      action: "Book a Visit",
+    },
+    {
       title: "Crop Planning",
       description: "Compare crops and plan what to grow next.",
       icon: "🌾",
