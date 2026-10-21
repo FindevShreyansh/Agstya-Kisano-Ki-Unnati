@@ -66,7 +66,7 @@ function RoleSelection() {
 
 
         {/* Role Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full max-w-7xl">
 
           {roles.map((role) => (
             <div
@@ -78,7 +78,7 @@ function RoleSelection() {
                 {role.icon}
               </div>
 
-              <h3 className="text-2xl font-semibold text-gray-800 mb-3">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
                 {role.title}
               </h3>
 

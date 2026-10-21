@@ -24,6 +24,7 @@ import AdminFarmers from "./pages/AdminFarmers";
 import AdminBuyers from "./pages/AdminBuyers";
 import AdminCropListings from "./pages/AdminCropListings";
 import AdminProcurement from "./pages/AdminProcurement";
+import BookExpert from "./pages/BookExpert";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
       <Route path="/farmer/login" element={<FarmerLogin />} />
       <Route path="/farmer/register" element={<FarmerRegister />} />
       <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
+      <Route path="/farmer/book-expert" element={<BookExpert />} />
       <Route path="/farmer/soil-analysis" element={<SoilAnalysis />} /> 
       <Route path="/farmer/crop-planning" element={<CropPlanning />}/>  
       <Route path="/farmer/buyers" element={<BuyerList />}/>  
