@@ -407,6 +407,11 @@ All premiums are admin-configurable via the reference prices API.
 ---
 
 ## 👥 Team & Contributing
+* **Rahul Raj** 
+* **Gaurav Gupta**
+* **Md. Sahid**
+* **Deepankar Kumar** 
+* **Shreyansh Kumar**   
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for our Git workflow and branching conventions.
 
