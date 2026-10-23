@@ -44,7 +44,7 @@ function NotificationCenter({
           type="button"
           onClick={onMarkAllAsRead}
           disabled={unreadCount === 0}
-          className="text-sm font-semibold text-green-700 hover:text-green-900 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-bold text-green-700 transition hover:bg-green-50 hover:text-green-900 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:bg-transparent"
         >
           Mark All as Read
         </button>
@@ -106,7 +106,7 @@ function NotificationCenter({
                         <button
                           type="button"
                           onClick={() => onMarkAsRead(notification.id)}
-                          className="text-xs font-semibold text-green-700 hover:text-green-900"
+                          className="inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-bold text-green-700 transition hover:bg-green-50 hover:text-green-900"
                         >
                           Mark as Read
                         </button>

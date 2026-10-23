@@ -1,157 +1,258 @@
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
+  const pageRef = useRef(null);
+  const navRef = useRef(null);
+  const heroImageRef = useRef(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("top");
+
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page) return;
+
+    const revealElements = page.querySelectorAll(".scroll-reveal");
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    if (motionPreference.matches || !("IntersectionObserver" in window)) {
+      revealElements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    revealElements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const sectionIds = ["top", "about", "features", "how-it-works"];
+    const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+    if (!("IntersectionObserver" in window)) return undefined;
+
+    const observer = new IntersectionObserver((entries) => {
+      const current = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((first, second) => second.intersectionRatio - first.intersectionRatio)[0];
+      if (current) setActiveSection(current.target.id);
+    }, { rootMargin: "-22% 0px -62% 0px", threshold: [0, 0.15, 0.35] });
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const heroImage = heroImageRef.current;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frameId = 0;
+
+    const updateScrollEffects = () => {
+      frameId = 0;
+      const scrollY = window.scrollY;
+      nav?.classList.toggle("is-scrolled", scrollY > 8);
+
+      if (!motionPreference.matches && heroImage) {
+        heroImage.style.setProperty("--hero-parallax-y", `${Math.min(scrollY * 0.045, 24)}px`);
+      }
+    };
+
+    const handleScroll = () => {
+      if (!frameId) frameId = window.requestAnimationFrame(updateScrollEffects);
+    };
+
+    updateScrollEffects();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frameId) window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] text-gray-800">
-
+    <div ref={pageRef} className="home-redesign min-h-screen bg-[#F7FAF7] text-gray-800">
       {/* Navbar */}
-      <nav className="bg-white border-b border-green-100 px-6 md:px-12 py-5 flex items-center justify-between">
+      <nav ref={navRef} className="redesign-nav sticky top-0 z-50 px-5 md:px-10">
+        <div className="redesign-nav-inner mx-auto grid min-h-[78px] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+          <a href="#top" aria-label="AGSTYA home" onClick={closeMobileMenu} className="brand-lockup min-w-0 justify-self-start">
+            <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-14 w-auto max-w-full object-contain sm:h-[62px]" />
+            <span className="brand-divider" aria-hidden="true" />
+           
+          </a>
 
-        <div>
-          <h1 className="text-2xl font-bold tracking-wide text-green-800">
-            AGSTYA
-          </h1>
+          <div className="redesign-nav-links items-center gap-7 text-sm font-semibold text-slate-600">
+            <a href="#top" className={`home-nav-link ${activeSection === "top" ? "is-active" : ""}`} aria-current={activeSection === "top" ? "page" : undefined}>Home</a>
+            <a href="#about" className={`home-nav-link ${activeSection === "about" ? "is-active" : ""}`} aria-current={activeSection === "about" ? "location" : undefined}>Our purpose</a>
+            <a href="#features" className={`home-nav-link ${activeSection === "features" ? "is-active" : ""}`} aria-current={activeSection === "features" ? "location" : undefined}>What you can do</a>
+            <a href="#how-it-works" className={`home-nav-link ${activeSection === "how-it-works" ? "is-active" : ""}`} aria-current={activeSection === "how-it-works" ? "location" : undefined}>How it works</a>
+          </div>
 
-          <p className="text-xs text-gray-500 text-b">
-            किसानों की उन्नति
-          </p>
+          <div className="redesign-nav-actions justify-self-end">
+            <button type="button" onClick={() => navigate("/roles")} className="nav-join">
+              Get started <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="home-mobile-menu"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            className="redesign-menu-toggle justify-self-end"
+          >
+            <span className={`home-menu-icon ${mobileMenuOpen ? "is-open" : ""}`} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+          </button>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
-          <a href="#" className="hover:text-green-700">
-            Home
-          </a>
-
-          <a href="#about" className="hover:text-green-700">
-            About
-          </a>
-
-          <a href="#features" className="hover:text-green-700">
-            Features
-          </a>
-
-          <a href="#how-it-works" className="hover:text-green-700">
-            How It Works
-          </a>
+        <div id="home-mobile-menu" className={`redesign-mobile-menu ${mobileMenuOpen ? "is-open" : ""}`} aria-hidden={!mobileMenuOpen}>
+          <div className="mx-auto grid max-w-7xl gap-1 py-3">
+            <a href="#top" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} className="home-mobile-link">Home <span>↗</span></a>
+            <a href="#about" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} className="home-mobile-link">Our purpose <span>↗</span></a>
+            <a href="#features" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} className="home-mobile-link">What you can do <span>↗</span></a>
+            <a href="#how-it-works" onClick={closeMobileMenu} tabIndex={mobileMenuOpen ? 0 : -1} className="home-mobile-link">How it works <span>↗</span></a>
+            <button
+              type="button"
+              onClick={() => {
+                closeMobileMenu();
+                navigate("/roles");
+              }}
+              tabIndex={mobileMenuOpen ? 0 : -1}
+              className="mobile-join mt-2 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white transition-colors"
+            >
+              Get Started <span aria-hidden="true">→</span>
+            </button>
+          </div>
         </div>
-
-        <button
-          onClick={() => navigate("/roles")}
-          className="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-full text-sm font-medium transition"
-        >
-          Get Started
-        </button>
-
       </nav>
 
-
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 grid md:grid-cols-2 gap-14 items-center">
+      <section id="top" className="redesign-hero relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-5 py-12 sm:px-8 md:grid-cols-2 md:px-12 md:py-20">
+        <div className="hero-grain" aria-hidden="true" />
 
         {/* Left */}
-        <div>
+        <div className="hero-copy min-w-0">
 
-          <span className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            🌾 Empowering Indian Farmers
+          <span style={{ "--enter-delay": "0ms" }} className="hero-enter hero-kicker mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-extrabold uppercase tracking-[0.15em]">
+            <span className="kicker-sun">✳</span> A brighter way to grow
           </span>
 
-          <h2 className="text-5xl md:text-6xl font-bold leading-tight text-gray-800">
-            Better Farming.
-            <span className="block text-green-700">
-              Better Opportunities.
+          <h1 className="hero-title text-4xl font-extrabold leading-[1.04] tracking-[-0.055em] text-gray-900 sm:text-5xl md:text-6xl xl:text-7xl">
+            <span style={{ "--enter-delay": "100ms" }} className="hero-heading-line block">The future of</span>
+            <span style={{ "--enter-delay": "210ms" }} className="hero-heading-line hero-title-accent block">
+              farming starts<br className="hidden sm:block" /> with your soil.
             </span>
-          </h2>
+          </h1>
 
-          <p className="mt-6 text-gray-500 text-lg leading-relaxed max-w-xl">
-            Agstya helps farmers make better crop decisions,
-            understand their soil, discover market opportunities
-            and connect with the right buyers.
+          <p style={{ "--enter-delay": "300ms" }} className="hero-enter mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+            Make confident choices for your farm. Understand your soil, plan your crops, and find new ways to reach buyers—all in one place.
           </p>
 
-          <div className="flex flex-wrap gap-4 mt-8">
+          <div className="hero-actions mt-8 flex flex-wrap gap-3">
 
             <button
+              type="button"
               onClick={() => navigate("/roles")}
-              className="bg-green-700 hover:bg-green-800 text-white px-7 py-3.5 rounded-full font-medium transition shadow-lg shadow-green-700/20"
+              style={{ "--enter-delay": "410ms" }}
+              className="hero-enter hero-primary rounded-full px-6 py-3.5 text-sm font-extrabold text-white transition-all duration-200"
             >
-              Get Started →
+              Find your way in <span aria-hidden="true">↗</span>
             </button>
 
             <button
+              type="button"
+              style={{ "--enter-delay": "490ms" }}
               onClick={() => {
                 document
-                  .getElementById("features")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                  .getElementById("how-it-works")
+                  ?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
               }}
-              className="border border-green-200 bg-white text-green-700 px-7 py-3.5 rounded-full font-medium hover:bg-green-50 transition"
+              className="hero-enter hero-secondary rounded-full px-6 py-3.5 text-sm font-bold transition-colors duration-200"
             >
-              Explore Agstya
+              See how it works <span aria-hidden="true">↓</span>
             </button>
 
           </div>
+
+          <div className="hero-signoff"><span className="signoff-line" /> Built around the people who grow our food</div>
 
         </div>
 
 
         {/* Right */}
-        <div className="relative">
-
-          <img
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1000&q=80"
-            alt="Agriculture"
-            className="w-full h-[430px] object-cover rounded-[35px] shadow-xl"
-          />
-
-          {/* Floating Card */}
-          <div className="absolute -bottom-6 -left-4 md:-left-8 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-4">
-
-            <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl">
-              🌱
-            </div>
-
-            <div>
-              <p className="font-semibold text-gray-800">
-                Smart Farming
-              </p>
-
-              <p className="text-xs text-gray-500">
-                Better decisions, better growth
-              </p>
-            </div>
-
+        <div className="hero-image-enter hero-art relative min-w-0">
+          <div className="hero-art-halo" />
+          <div className="hero-image-frame hero-image-wrap">
+            <img
+              ref={heroImageRef}
+              src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=85"
+              alt="Sunlight over a green agricultural field"
+              className="hero-parallax-image h-[360px] w-full object-cover sm:h-[470px]"
+            />
           </div>
 
+          <div className="hero-art-stamp" aria-hidden="true"><span>GROW</span><span>WITH</span><strong>AGSTYA</strong></div>
+          <div className="smart-farming-float floating-note note-soil">
+            <span className="note-icon">✳</span>
+            <span><b>Start with the soil</b><small>Understand your field</small></span>
+          </div>
+          <div className="floating-note note-market">
+            <span className="note-icon">↗</span>
+            <span><b>Grow your options</b><small>Plan · list · connect</small></span>
+          </div>
+          <span className="hero-spark spark-one" aria-hidden="true">✳</span>
+          <span className="hero-spark spark-two" aria-hidden="true">✦</span>
         </div>
 
+        <a href="#about" className="hero-scroll-cue"><span /> Scroll to explore</a>
+      </section>
+
+      <section className="promise-ribbon" aria-label="AGSTYA platform focus">
+        <span>SOIL INSIGHTS</span><i aria-hidden="true">✳</i><span>CROP PLANNING</span><i aria-hidden="true">✳</i><span>MARKET CONNECTIONS</span><i aria-hidden="true">✳</i><span>FARMER FIRST</span>
       </section>
 
 
       {/* About */}
       <section
         id="about"
-        className="bg-white py-20 px-6 md:px-12"
+        className="purpose-section relative overflow-hidden bg-white px-6 py-20 md:px-12"
       >
 
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="purpose-grid relative z-10 mx-auto max-w-6xl">
 
-          <span className="text-green-700 font-semibold text-sm">
-            ABOUT AGSTYA
+          <span className="section-index scroll-reveal block font-extrabold">
+            01 <span>—</span> OUR PURPOSE
           </span>
 
-          <h2 className="text-3xl md:text-4xl font-bold mt-3">
-            From better decisions to better opportunities.
+          <h2 style={{ "--reveal-delay": "100ms" }} className="scroll-reveal text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+            Good decisions<br />deserve <em>good tools.</em>
           </h2>
 
-          <p className="mt-5 text-gray-500 leading-relaxed">
-            Farmers often face challenges in deciding what to grow,
-            understanding their soil, finding the right market and
-            getting better value for their produce. Agstya brings
-            these opportunities together in one platform.
-          </p>
+          <div className="purpose-copy scroll-reveal" style={{ "--reveal-delay": "200ms" }}>
+            <p>Every season brings important choices: what to grow, how to care for the land, and where to sell. AGSTYA brings practical tools for those choices into one farmer-focused experience.</p>
+            <button type="button" className="text-link" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>Explore the platform <span aria-hidden="true">↘</span></button>
+          </div>
 
         </div>
+        <div className="purpose-orbit" aria-hidden="true"><span>GROW</span><i>✳</i></div>
 
       </section>
 
@@ -159,64 +260,69 @@ function Home() {
       {/* Features */}
       <section
         id="features"
-        className="max-w-7xl mx-auto px-6 md:px-12 py-20"
+        className="feature-section mx-auto max-w-7xl px-5 py-20 sm:px-8 md:px-12"
       >
 
-        <div className="text-center mb-12">
+        <div className="feature-heading mb-12">
+          <div>
 
-          <span className="text-green-700 font-semibold text-sm">
-            WHAT AGSTYA OFFERS
+          <span className="section-index scroll-reveal block font-extrabold">
+            02 <span>—</span> YOUR TOOLKIT
           </span>
 
-          <h2 className="text-3xl md:text-4xl font-bold mt-3">
-            Everything farmers need to grow smarter
+          <h2 style={{ "--reveal-delay": "100ms" }} className="scroll-reveal mt-3 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+            A whole season,<br /><em>in your hands.</em>
           </h2>
+          </div>
+          <p className="scroll-reveal max-w-sm text-left text-sm leading-6 text-gray-600 sm:text-base" style={{ "--reveal-delay": "180ms" }}>
+            Thoughtful tools that bring farm insights and market opportunities closer together.
+          </p>
 
         </div>
 
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="feature-grid grid gap-5 md:grid-cols-3">
 
           {[
             {
+              number: "01",
               icon: "🌱",
-              title: "Smart Crop Planning",
-              text: "Get suitable crop suggestions based on farm conditions."
+              title: "Know your soil",
+              text: "Make sense of soil readings and see which crops may suit your field.",
+              tone: "mint",
             },
             {
+              number: "02",
               icon: "🧪",
-              title: "Soil Analysis",
-              text: "Understand your soil and identify suitable crops."
+              title: "Plan with purpose",
+              text: "Explore crop choices and estimate revenue from your own inputs.",
+              tone: "sun",
             },
             {
+              number: "03",
               icon: "🤝",
-              title: "Buyer Connection",
-              text: "Connect farmers with suitable buyers and market demand."
-            },
-            {
-              icon: "📈",
-              title: "Profit Planning",
-              text: "Compare expected costs, revenue and profitability."
+              title: "Reach the market",
+              text: "Show available produce and discover buyer opportunities in one place.",
+              tone: "blue",
             }
-          ].map((feature) => (
+          ].map((feature, index) => (
 
             <div
               key={feature.title}
-              className="bg-white border border-green-100 rounded-2xl p-7 hover:-translate-y-1 hover:shadow-lg transition"
+              style={{ "--reveal-delay": `${index * 120}ms`, "--tile-delay": `${index * 110}ms` }}
+              className={`scroll-reveal feature-tile ${feature.tone}`}
             >
-
-              <div className="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center text-2xl mb-5">
+              <div className="tile-topline"><span>{feature.number} / 03</span><span className="tile-arrow" aria-hidden="true">↗</span></div>
+              <div className="tile-icon" aria-hidden="true">
                 {feature.icon}
               </div>
-
-              <h3 className="font-semibold text-lg mb-3">
+              <h3>
                 {feature.title}
               </h3>
-
-              <p className="text-gray-500 text-sm leading-relaxed">
+              <p>
                 {feature.text}
               </p>
-
+              <span className="tile-bottom-line" />
             </div>
 
           ))}
@@ -229,41 +335,44 @@ function Home() {
       {/* How It Works */}
       <section
         id="how-it-works"
-        className="bg-green-900 text-white py-20 px-6 md:px-12"
+        className="journey-section relative overflow-hidden bg-green-950 px-5 py-20 text-white sm:px-8 md:px-12"
       >
+        <div className="journey-orb" aria-hidden="true" />
 
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="journey-header relative z-10 mx-auto max-w-6xl">
 
-          <span className="text-green-300 font-semibold text-sm">
-            HOW IT WORKS
+          <span className="section-index scroll-reveal block font-extrabold text-green-300">
+            03 <span>—</span> THE JOURNEY
           </span>
 
-          <h2 className="text-3xl md:text-4xl font-bold mt-3">
-            From farm to opportunity
+          <h2 style={{ "--reveal-delay": "100ms" }} className="scroll-reveal mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            From the ground up.
           </h2>
+          <p className="scroll-reveal mt-4 text-sm leading-6 text-green-100/75 sm:text-base" style={{ "--reveal-delay": "180ms" }}>A simple path from understanding your farm to exploring the market.</p>
 
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-6 mt-14">
+          <div className="journey-track relative z-10 mt-14 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
 
             {[
-              ["01", "Understand", "Know your farm and soil"],
-              ["02", "Plan", "Choose suitable crops"],
-              ["03", "Grow", "Make informed decisions"],
-              ["04", "Connect", "Find the right buyers"],
-              ["05", "Earn", "Create better value"]
-            ].map(([number, title, text]) => (
+              ["01", "Understand", "Start with your farm and soil"],
+              ["02", "Plan", "Explore crops and estimates"],
+              ["03", "Prepare", "List the produce you have"],
+              ["04", "Connect", "Explore buyer opportunities"]
+            ].map(([number, title, text], index) => (
 
-              <div key={number}>
+              <div
+                key={number}
+                style={{ "--reveal-delay": `${index * 120}ms`, "--tile-delay": `${index * 100}ms` }}
+                className="scroll-reveal journey-step"
+              >
 
-                <div className="text-green-300 text-sm font-bold mb-3">
-                  {number}
-                </div>
+                <div className="step-marker"><span>{number}</span><i /></div>
 
-                <h3 className="text-lg font-semibold">
+                <h3>
                   {title}
                 </h3>
 
-                <p className="text-green-100/70 text-sm mt-2">
+                <p>
                   {text}
                 </p>
 
@@ -272,6 +381,7 @@ function Home() {
             ))}
 
           </div>
+          <div className="journey-footer scroll-reveal"><span>One farm. Many possibilities.</span><span aria-hidden="true">✳</span></div>
 
         </div>
 
@@ -279,37 +389,36 @@ function Home() {
 
 
       {/* CTA */}
-      <section className="py-20 px-6 text-center bg-green-50">
+      <section className="closing-section home-cta-section relative px-6 py-20 text-center">
 
-        <h2 className="text-3xl md:text-4xl font-bold">
-          Ready to grow with Agstya?
+        <div className="closing-sun" aria-hidden="true">✳</div>
+        <div className="home-cta-content relative mx-auto max-w-3xl">
+        <span className="section-index scroll-reveal block font-extrabold">YOUR NEXT SEASON STARTS HERE</span>
+        <h2 style={{ "--reveal-delay": "0ms" }} className="scroll-reveal mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+          Let’s grow<br /><em>something better.</em>
         </h2>
 
-        <p className="text-gray-500 mt-4">
-          Join a smarter agricultural ecosystem.
+        <p style={{ "--reveal-delay": "120ms" }} className="scroll-reveal mt-4 text-sm leading-6 text-gray-600 sm:text-base">
+          Step into a more connected way to plan, grow, and find opportunity.
         </p>
 
         <button
           onClick={() => navigate("/roles")}
-          className="mt-7 bg-green-700 hover:bg-green-800 text-white px-8 py-3.5 rounded-full font-medium transition"
+          style={{ "--reveal-delay": "240ms" }}
+          className="scroll-reveal closing-cta mt-7 rounded-full px-8 py-4 text-sm font-extrabold text-white transition-all duration-200"
         >
-          Start Your Journey →
+          Explore AGSTYA <span aria-hidden="true">↗</span>
         </button>
+        </div>
 
       </section>
 
 
       {/* Footer */}
-      <footer className="bg-white border-t border-green-100 py-7 text-center">
-
-        <h3 className="font-bold text-green-800">
-          AGSTYA
-        </h3>
-
-        <p className="text-xs text-gray-400 mt-1">
-          Kisano Ki Unnati
-        </p>
-
+      <footer className="redesign-footer">
+        <a href="#top" className="footer-brand"><img src="/agstya-logo.png" alt="AGSTYA" /></a>
+        <p>Tools for a more informed, connected farming journey.</p>
+        <a href="#top" className= "back-to-top">Back to top ↑</a>
       </footer>
 
     </div>

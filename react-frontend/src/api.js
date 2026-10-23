@@ -43,11 +43,14 @@ export async function apiRequest(path, options = {}) {
   return data;
 }
 
-export async function login(credentials) {
+export async function login(credentials, expectedRole) {
   const data = await apiRequest("/auth/login", {
     method: "POST",
     body: credentials,
   });
+  if (expectedRole && data.role !== expectedRole) {
+    throw new Error(`This account does not have ${expectedRole.toLowerCase()} access.`);
+  }
   localStorage.setItem("agstya_token", data.token);
   localStorage.setItem("agstya_user", JSON.stringify(data));
   return data;

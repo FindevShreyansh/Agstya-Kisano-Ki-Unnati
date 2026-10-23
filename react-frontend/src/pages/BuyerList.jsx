@@ -72,7 +72,7 @@ const filteredBuyers = selectedCrop
   : buyers;
 
   return (
-    <div className="min-h-screen bg-green-50">
+    <div className="farmer-page min-h-screen bg-green-50">
 
       <div className="bg-white border-b border-green-100 px-8 py-5">
         <Link
@@ -83,8 +83,8 @@ const filteredBuyers = selectedCrop
         </Link>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="text-3xl font-bold text-gray-800">
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           Find Buyers 🏢
         </h1>
 
