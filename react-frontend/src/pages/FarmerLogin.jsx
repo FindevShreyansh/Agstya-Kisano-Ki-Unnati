@@ -1,14 +1,26 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { login } from "../api";
 
 function FarmerLogin() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/farmer/dashboard");
+    setError("");
+    setSubmitting(true);
+    try {
+      await login(form, "FARMER");
+      navigate("/farmer/dashboard");
+    } catch (requestError) {
+      setError(requestError.message || "Unable to sign in. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -58,6 +70,9 @@ function FarmerLogin() {
 
               <input
                 type="email"
+                required
+                autoComplete="username"
+                disabled={submitting}
                 value={form.email}
                 onChange={(event) => setForm({ ...form, email: event.target.value })}
                 placeholder="Enter your email address"
@@ -73,6 +88,9 @@ function FarmerLogin() {
 
               <input
                 type="password"
+                required
+                autoComplete="current-password"
+                disabled={submitting}
                 value={form.password}
                 onChange={(event) => setForm({ ...form, password: event.target.value })}
                 placeholder="Enter your password"
@@ -98,11 +116,14 @@ function FarmerLogin() {
             </div>
 
 
+            {error && <p role="alert" className="text-sm text-red-700 bg-red-50 rounded-xl px-4 py-3">{error}</p>}
+
             <button
               type="submit"
+              disabled={submitting}
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3.5 rounded-xl font-medium transition"
             >
-              Login as Farmer →
+              {submitting ? "Signing in…" : "Login as Farmer →"}
             </button>
 
           </form>
@@ -121,6 +142,10 @@ function FarmerLogin() {
             </Link>
 
           </div>
+
+          <p className="mt-5 text-center text-xs text-gray-500">
+            Demo account: farmer@agritech.test · Password: Demo@123
+          </p>
 
         </div>
 

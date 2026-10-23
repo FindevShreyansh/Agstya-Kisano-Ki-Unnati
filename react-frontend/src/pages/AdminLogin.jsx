@@ -1,30 +1,33 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { login } from "../api";
 
 function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (email.trim().toLowerCase() === "admin@agstya.com" && password === "admin123") {
-      setError("");
+    setError("");
+    setSubmitting(true);
+    try {
+      await login({ email, password }, "ADMIN");
       navigate("/admin/dashboard");
-      return;
+    } catch (requestError) {
+      setError(requestError.message || "Unable to sign in. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setError("Email or password is incorrect. Please try again.");
   };
 
   return (
     <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
       <header className="bg-white border-b border-green-100 px-5 sm:px-8 py-5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">AGSTYA</h1>
-            <p className="text-xs text-gray-500">Kisano Ki Unnati</p>
-          </div>
+          <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
           <Link to="/roles" className="text-sm font-semibold text-green-700 hover:underline">
             ← Back to Role Selection
           </Link>
@@ -51,6 +54,7 @@ function AdminLogin() {
                 type="email"
                 autoComplete="username"
                 required
+                disabled={submitting}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -66,6 +70,7 @@ function AdminLogin() {
                 type="password"
                 autoComplete="current-password"
                 required
+                disabled={submitting}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -75,14 +80,15 @@ function AdminLogin() {
             {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
             <button
               type="submit"
+              disabled={submitting}
               className="w-full rounded-xl bg-green-700 hover:bg-green-800 text-white font-semibold py-3 transition"
             >
-              Continue to Admin Dashboard
+              {submitting ? "Signing in…" : "Continue to Admin Dashboard"}
             </button>
           </form>
 
           <p className="mt-5 text-center text-xs text-gray-500">
-            Demo credentials: admin@agstya.com / admin123
+            Demo credentials: admin@agritech.test / Demo@123
           </p>
         </section>
       </main>

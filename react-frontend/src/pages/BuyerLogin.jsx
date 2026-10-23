@@ -1,15 +1,26 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { login } from "../api";
 
 function BuyerLogin() {
   const navigate = useNavigate();
-  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Frontend demo mock login - redirects directly to Buyer Dashboard
-    navigate("/buyer/dashboard");
+    setError("");
+    setSubmitting(true);
+    try {
+      await login({ email, password }, "BUYER");
+      navigate("/buyer/dashboard");
+    } catch (requestError) {
+      setError(requestError.message || "Unable to sign in. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -43,13 +54,16 @@ function BuyerLogin() {
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Business Email / Mobile
+                Business email
               </label>
               <input
-                type="text"
-                value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                placeholder="e.g. buyer@traders.com or 9876543210"
+                type="email"
+                required
+                autoComplete="username"
+                disabled={submitting}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. buyer@traders.com"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
@@ -60,6 +74,9 @@ function BuyerLogin() {
               </label>
               <input
                 type="password"
+                required
+                autoComplete="current-password"
+                disabled={submitting}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -80,18 +97,21 @@ function BuyerLogin() {
               </button>
             </div>
 
+            {error && <p role="alert" className="text-sm text-red-700 bg-red-50 rounded-xl px-4 py-3">{error}</p>}
+
             <button
               type="submit"
+              disabled={submitting}
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3.5 rounded-xl font-medium transition duration-200 shadow-sm"
             >
-              Login as Buyer →
+              {submitting ? "Signing in…" : "Login as Buyer →"}
             </button>
           </form>
 
           {/* Registration Hint */}
           <div className="text-center mt-7 text-sm text-gray-500">
-            Procuring for your business?{" "}
-            <span className="text-green-700 font-medium">Demo Instant Access</span>
+            Demo account: <span className="font-medium text-gray-700">buyer@agritech.test</span>
+            <br />Password: <span className="font-medium text-gray-700">Demo@123</span>
           </div>
         </div>
 

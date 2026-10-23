@@ -33,24 +33,22 @@ function BookExpert() {
   const labelClassName = "mb-2 block text-sm font-semibold text-gray-700";
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
-      <header className="bg-white border-b border-green-100 px-5 sm:px-8 py-5">
+    <div className="farmer-page min-h-screen bg-[#F7FAF7] flex flex-col">
+      <header className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-5 py-3 shadow-sm backdrop-blur-xl sm:px-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">AGSTYA</h1>
-            <p className="text-xs text-gray-500">Kisano Ki Unnati</p>
-          </div>
-          <Link to="/farmer/dashboard" className="text-sm font-semibold text-green-700 hover:underline">
+          <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
+          <Link to="/farmer/dashboard" className="inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-bold text-green-700 transition hover:bg-green-50">
             ← Farmer Dashboard
           </Link>
         </div>
       </header>
 
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-8 sm:px-6 sm:py-10">
-        <section className="rounded-3xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
+        <section className="overflow-hidden rounded-3xl border border-green-100 bg-white p-5 shadow-[0_12px_35px_rgba(24,70,42,0.08)] sm:p-8">
           <div className="mb-7">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-2xl">🧪</span>
-            <h2 className="mt-4 text-2xl font-bold text-gray-800 sm:text-3xl">Book Soil Analysis Expert</h2>
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-200 to-lime-100 text-2xl ring-1 ring-green-200">🧪</span>
+            <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.16em] text-green-700">Expert field visit</p>
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">Book a soil analysis expert</h1>
             <p className="mt-2 text-sm text-gray-500">
               Share your details to request a soil analysis visit from our team.
             </p>

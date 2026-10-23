@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Home from "./pages/Home";
 import RoleSelection from "./pages/RoleSelection";
@@ -27,7 +27,10 @@ import AdminProcurement from "./pages/AdminProcurement";
 import BookExpert from "./pages/BookExpert";
 
 function App() {
+  const location = useLocation();
+
   return (
+    <div key={location.pathname} className="route-transition">
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/roles" element={<RoleSelection />} />
@@ -61,6 +64,7 @@ function App() {
       <Route path="/admin/crops" element={<AdminCropListings />} />
       <Route path="/admin/procurement" element={<AdminProcurement />} />
     </Routes>
+    </div>
   );
 }
 

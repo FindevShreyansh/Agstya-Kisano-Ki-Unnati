@@ -12,6 +12,7 @@ function CropPlanning() {
 });
 
 const [profitResult, setProfitResult] = useState(null);
+const [formError, setFormError] = useState("");
 
  const handleChange = (e) => {
     setCropData({
@@ -23,21 +24,15 @@ const [profitResult, setProfitResult] = useState(null);
   const calculateProfit = () => {
   const { crop, land, cost, production, price } = cropData;
 
-  if (!crop){
-    alert("Please enter all crop details.");
+  if (!crop || !land || cost === "" || !production || price === "") {
+    setFormError("Complete each field before calculating your estimate.");
     return;
-  } else if(!land){
-    alert("Error: Land not entered");
-    return;
-  } else if(!cost){
-    alert("Error: Enter Cost");
-    return;
-  } else if(!production){
-    alert("Error: Enter production");
-    return;
-  } else if(!price ){
-    alert("Error: Enter price");
   }
+  if (Number(land) <= 0 || Number(cost) < 0 || Number(production) <= 0 || Number(price) < 0) {
+    setFormError("Land and production must be above zero. Cost and price cannot be negative.");
+    return;
+  }
+  setFormError("");
 
   const revenue = Number(production) * Number(price);
   const profit = revenue - Number(cost);
@@ -50,24 +45,17 @@ const [profitResult, setProfitResult] = useState(null);
 };
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7]">
+    <div className="farmer-page min-h-screen bg-[#F7FAF7]">
 
       {/* Navbar */}
-      <nav className="bg-white border-b border-green-100 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <nav className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
 
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">
-              AGSTYA
-            </h1>
-            <p className="text-xs text-gray-500">
-              Kisano Ki Unnati
-            </p>
-          </div>
+          <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
 
           <Link
             to="/farmer/dashboard"
-            className="text-sm text-green-700 font-semibold"
+            className="inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-bold text-green-700 transition hover:bg-green-50"
           >
             ← Dashboard
           </Link>
@@ -76,22 +64,18 @@ const [profitResult, setProfitResult] = useState(null);
       </nav>
 
       {/* Main */}
-      <main className="max-w-5xl mx-auto px-6 py-10">
+      <main className="mx-auto max-w-5xl px-4 sm:px-6">
 
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Crop Planning 🌾
-          </h2>
-
-          <p className="text-gray-500 mt-2">
-            Plan your crop and estimate your potential earnings.
-          </p>
-        </div>
+        <header className="mb-8 rounded-[1.8rem] bg-gradient-to-r from-emerald-600 via-green-600 to-lime-500 p-6 text-white shadow-lg shadow-green-900/10 sm:p-8">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.15em] ring-1 ring-inset ring-white/20">🌾 Season planning</span>
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">Plan your crop returns</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/90 sm:text-base">Use your own estimates to compare expected revenue with your costs.</p>
+        </header>
 
         {/* Form */}
-        <div className="bg-white rounded-3xl border border-green-100 shadow-sm p-8">
+        <div className="rounded-3xl border border-green-100 bg-white p-5 shadow-[0_12px_35px_rgba(24,70,42,0.08)] sm:p-8">
 
-          <h3 className="text-xl font-bold text-gray-800 mb-6">
+          <h3 className="mb-6 text-xl font-extrabold tracking-tight text-gray-900">
             Enter Crop Details
           </h3>
 
@@ -109,7 +93,7 @@ const [profitResult, setProfitResult] = useState(null);
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option>Select crop</option>
+                <option value="">Select crop</option>
                 <option>Rice</option>
                 <option>Wheat</option>
                 <option>Maize</option>
@@ -128,6 +112,8 @@ const [profitResult, setProfitResult] = useState(null);
                 <input
                   type="number"
                   name="land"
+                  min="0.01"
+                  step="any"
                   value={cropData.land}
                   onChange={handleChange}
                   placeholder="e.g. 5"
@@ -149,6 +135,8 @@ const [profitResult, setProfitResult] = useState(null);
               <input
                 type="number"
                  name="cost"
+                min="0"
+                step="any"
                 value={cropData.cost}
                 onChange={handleChange}
                 placeholder="₹ Enter estimated cost"
@@ -166,6 +154,8 @@ const [profitResult, setProfitResult] = useState(null);
                 <input
                   type="number"
                    name="production"
+                    min="0.01"
+                    step="any"
                     value={cropData.production}
                     onChange={handleChange}
                   placeholder="e.g. 20"
@@ -187,6 +177,8 @@ const [profitResult, setProfitResult] = useState(null);
               <input
                 type="number"
                  name="price"
+                 min="0"
+                 step="any"
                  value={cropData.price}
                   onChange={handleChange}
                 placeholder="₹ Price per quintal"
@@ -196,43 +188,41 @@ const [profitResult, setProfitResult] = useState(null);
 
           </div>
 
+          {formError && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">{formError}</p>}
           <button
+            type="button"
             onClick={calculateProfit}
-            className="mt-8 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-semibold transition"
+            className="mt-7 inline-flex min-h-12 items-center justify-center rounded-xl bg-green-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-700"
           >
-            Calculate Potential Profit →
+            Calculate estimate <span className="ml-2">→</span>
           </button>
 
           {profitResult && (
-  <div className="mt-6 bg-green-50 border border-green-200 rounded-2xl p-6">
-    <h3 className="font-bold text-green-800 text-xl">
-      Crop Planning Result 🌱
-    </h3>
-
-    <div className="mt-5 space-y-4">
-      <div>
-        <p className="text-sm text-gray-500">Selected Crop</p>
-        <p className="font-semibold text-gray-800">
-          {profitResult.crop}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-sm text-gray-500">Expected Revenue</p>
-        <p className="font-semibold text-green-700">
-          ₹{profitResult.revenue}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-sm text-gray-500">Potential Profit</p>
-        <p className="font-bold text-green-800 text-2xl">
-          ₹{profitResult.profit}
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+            <section className="mt-7 rounded-2xl border border-green-200 bg-gradient-to-br from-green-100 to-lime-50 p-5 sm:p-6" aria-live="polite">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <span className="text-xs font-extrabold uppercase tracking-[0.15em] text-green-700">Your estimate</span>
+                  <h3 className="mt-1 text-xl font-extrabold text-gray-900">{profitResult.crop} outlook</h3>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1.5 text-sm font-bold text-gray-700 shadow-sm">{cropData.land} acres</span>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl bg-white/85 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Expected revenue</p>
+                  <p className="mt-1 text-xl font-extrabold text-green-700">
+                    {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(profitResult.revenue)}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white/85 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Estimated profit</p>
+                  <p className={`mt-1 text-xl font-extrabold ${profitResult.profit >= 0 ? "text-green-700" : "text-red-700"}`}>
+                    {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(profitResult.profit)}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-xs leading-5 text-gray-600">Estimate based only on the figures you entered. Actual returns can vary.</p>
+            </section>
+          )}
 
         </div>
 

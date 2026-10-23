@@ -4,10 +4,6 @@ import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
 import { getSoilBookings, saveSoilBookings } from "../data/soilBookings";
 
-const royalPointer = {
-  cursor: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3v22l6-6 4 9 5-2-4-9h9L5 3z' fill='%23124b35' stroke='%23f3cc70' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E\") 5 3, pointer",
-};
-
 const activityItems = [
   { icon: "👨‍🌾", text: "New farmer Ramesh Kumar registered", date: "Oct 7, 2026 · 10:24 AM" },
   { icon: "📋", text: "Bangalore Rice Traders posted a Rice requirement", date: "Oct 7, 2026 · 9:50 AM" },
@@ -22,13 +18,57 @@ function AdminDashboard() {
   const { records: crops } = useAdminCollection("crops");
   const { records: procurement } = useAdminCollection("procurement");
   const [soilBookings, setSoilBookings] = useState(getSoilBookings);
+  const [bookingActionMessage, setBookingActionMessage] = useState("");
+  const [bookingActionError, setBookingActionError] = useState("");
+  const [bookingView, setBookingView] = useState("Pending");
+  const [bookingSearch, setBookingSearch] = useState("");
+  const [bookingPage, setBookingPage] = useState(1);
+  const bookingsPerPage = 8;
+
+  const bookingCounts = {
+    Pending: soilBookings.filter((booking) => booking.status === "Pending").length,
+    Accepted: soilBookings.filter((booking) => booking.status === "Accepted").length,
+    Rejected: soilBookings.filter((booking) => booking.status === "Rejected").length,
+    All: soilBookings.length,
+  };
+  const filteredBookings = soilBookings
+    .filter((booking) => {
+      const matchesView = bookingView === "All" || booking.status === bookingView;
+      const searchText = `${booking.farmerName || ""} ${booking.mobileNumber || ""} ${booking.landAddress || ""}`.toLowerCase();
+      return matchesView && searchText.includes(bookingSearch.trim().toLowerCase());
+    })
+    .sort((first, second) => (Date.parse(second.submittedAt) || 0) - (Date.parse(first.submittedAt) || 0));
+  const bookingPageCount = Math.max(1, Math.ceil(filteredBookings.length / bookingsPerPage));
+  const currentBookingPage = Math.min(bookingPage, bookingPageCount);
+  const pageBookings = filteredBookings.slice(
+    (currentBookingPage - 1) * bookingsPerPage,
+    currentBookingPage * bookingsPerPage
+  );
 
   const updateSoilBookingStatus = (bookingId, status) => {
-    const updatedBookings = soilBookings.map((booking) =>
-      booking.id === bookingId ? { ...booking, status } : booking
-    );
-    saveSoilBookings(updatedBookings);
-    setSoilBookings(updatedBookings);
+    setBookingActionError("");
+    setBookingActionMessage("");
+
+    try {
+      // Read the latest saved list before updating so rapid actions never write stale state.
+      const savedBookings = getSoilBookings();
+      const currentBookings = Array.isArray(savedBookings) ? savedBookings : soilBookings;
+      const target = currentBookings.find((booking) => booking.id === bookingId);
+
+      if (!target || target.status !== "Pending") return;
+
+      const updatedBookings = currentBookings.map((booking) =>
+        booking.id === bookingId ? { ...booking, status } : booking
+      );
+      saveSoilBookings(updatedBookings);
+      setSoilBookings(updatedBookings);
+      setBookingActionMessage(`${target.farmerName || "Farmer"}’s soil analysis request was ${status.toLowerCase()}.`);
+      setBookingView("Pending");
+      setBookingPage(1);
+    } catch (error) {
+      console.error("Unable to update soil analysis booking status.", error);
+      setBookingActionError("The request status could not be saved. Please try again.");
+    }
   };
 
   const stats = [
@@ -50,19 +90,19 @@ function AdminDashboard() {
       title="AGSTYA Admin Dashboard"
       subtitle="A clear view of the people, produce and partnerships powering our agricultural network."
     >
-      <section className="relative mb-7 overflow-hidden rounded-[26px] bg-gradient-to-br from-[#133e2c] via-[#1b573c] to-[#246747] px-6 py-7 text-white shadow-xl shadow-[#173c2c]/15 sm:px-8 sm:py-8">
+      <section className="relative mb-7 overflow-hidden rounded-[2rem] bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 px-6 py-8 text-white shadow-xl shadow-green-900/15 sm:px-9 sm:py-10 lg:px-12">
         <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-24 h-72 w-72 rounded-full border-[42px] border-amber-200/[0.07]" />
         <div aria-hidden="true" className="pointer-events-none absolute right-40 top-10 h-32 w-32 rounded-full border border-emerald-100/[0.12]" />
         <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-200">
-              <span className="h-px w-7 bg-amber-300/80" /> The AGSTYA network
+              <span className="h-px w-7 bg-amber-300/80" /> YOUR AGSTYA NETWORK
             </p>
             <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
               Cultivating growth.<br className="hidden sm:block" /> Connecting opportunity.
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-emerald-50/70">
-              Your command view for a stronger, more connected agricultural marketplace.
+              A clear view of the farmers, buyers, crops and procurement activity on the platform.
             </p>
           </div>
           <div className="flex gap-6 sm:gap-8">
@@ -77,6 +117,9 @@ function AdminDashboard() {
             </div>
           </div>
         </div>
+        <Link to="/admin/farmers" className="relative mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-300 px-5 py-3 text-sm font-extrabold text-green-950 shadow-lg shadow-green-950/15 transition hover:-translate-y-0.5 hover:bg-amber-200">
+          Manage the network <span aria-hidden="true">↗</span>
+        </Link>
       </section>
 
       <section aria-label="Key platform metrics" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
@@ -84,7 +127,6 @@ function AdminDashboard() {
           <Link
             key={stat.label}
             to={stat.link}
-            style={royalPointer}
             className="group relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#1c533b] to-[#17432f] p-5 shadow-[0_12px_30px_rgba(3,19,12,0.28)] ring-1 ring-inset ring-emerald-100/[0.09] transition duration-200 hover:-translate-y-1 hover:from-[#205d42] hover:to-[#194b35] hover:shadow-xl hover:shadow-black/30"
           >
             <span className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${stat.accent}`} />
@@ -151,17 +193,73 @@ function AdminDashboard() {
             <h2 className="mt-1 text-lg font-extrabold tracking-tight text-[#fff9e8]">Soil Analysis Bookings</h2>
           </div>
           <span className="rounded-full bg-emerald-300/10 px-3 py-1.5 text-[10px] font-bold text-emerald-100 ring-1 ring-inset ring-emerald-100/10">
-            {soilBookings.filter((booking) => booking.status === "Pending").length} pending
+            {bookingCounts.Pending} pending
           </span>
         </div>
 
+        {bookingActionMessage && (
+          <p className="mx-4 mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 sm:mx-5" role="status" aria-live="polite">
+            {bookingActionMessage}
+          </p>
+        )}
+        {bookingActionError && (
+          <p className="mx-4 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 sm:mx-5" role="alert">
+            {bookingActionError}
+          </p>
+        )}
+
+        <div className="flex flex-col gap-4 px-4 pt-5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-2" aria-label="Filter soil analysis bookings">
+            {["Pending", "Accepted", "Rejected", "All"].map((view) => (
+              <button
+                key={view}
+                type="button"
+                aria-pressed={bookingView === view}
+                onClick={() => {
+                  setBookingView(view);
+                  setBookingPage(1);
+                  setBookingActionMessage("");
+                }}
+                className={`min-h-10 rounded-full px-4 py-2 text-xs font-extrabold transition ${
+                  bookingView === view
+                    ? "bg-green-700 text-white shadow-sm"
+                    : "border border-green-100 bg-white text-green-800 hover:bg-green-50"
+                }`}
+              >
+                {view === "All" ? "All requests" : view}
+                <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${bookingView === view ? "bg-white/20" : "bg-green-50"}`}>
+                  {bookingCounts[view]}
+                </span>
+              </button>
+            ))}
+          </div>
+          <label className="block w-full lg:max-w-sm">
+            <span className="sr-only">Search bookings</span>
+            <input
+              type="search"
+              value={bookingSearch}
+              onChange={(event) => {
+                setBookingSearch(event.target.value);
+                setBookingPage(1);
+              }}
+              placeholder="Search farmer, phone, or address"
+              className="min-h-11 w-full rounded-xl border border-green-100 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+            />
+          </label>
+        </div>
+
         {soilBookings.length === 0 ? (
-          <p className="px-5 py-8 text-sm text-emerald-50/70 sm:px-6">
-            No soil analysis bookings have been submitted.
+          <p className="px-5 py-8 text-sm text-gray-600 sm:px-6">
+            No soil analysis bookings have been submitted yet.
+          </p>
+        ) : filteredBookings.length === 0 ? (
+          <p className="px-5 py-8 text-sm text-gray-600 sm:px-6" role="status">
+            {bookingSearch ? "No bookings match your search in this view." : `There are no ${bookingView.toLowerCase()} bookings.`}
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 p-4 sm:p-5 lg:grid-cols-2">
-            {soilBookings.map((booking) => (
+          <>
+            <div className="grid grid-cols-1 gap-4 p-4 sm:p-5 lg:grid-cols-2">
+            {pageBookings.map((booking) => (
               <article key={booking.id} className="rounded-2xl border border-emerald-100/10 bg-white/[0.05] p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <h3 className="text-base font-bold text-[#fff9e8]">{booking.farmerName}</h3>
@@ -193,27 +291,54 @@ function AdminDashboard() {
                     <dd className="mt-0.5 font-medium text-emerald-50">{booking.preferredVisitDate}</dd>
                   </div>
                 </dl>
-                {booking.status === "Pending" && (
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => updateSoilBookingStatus(booking.id, "Accepted")}
-                      className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-[#123c2b] transition hover:bg-emerald-400"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateSoilBookingStatus(booking.id, "Rejected")}
-                      className="rounded-xl bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/25"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
+                <div className="mt-5 flex flex-wrap gap-3 border-t border-emerald-100/10 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => updateSoilBookingStatus(booking.id, "Accepted")}
+                    disabled={booking.status !== "Pending"}
+                    aria-label={`Accept soil analysis request from ${booking.farmerName}`}
+                    className="min-h-11 rounded-xl bg-green-700 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-green-100 disabled:text-green-800 disabled:shadow-none"
+                  >
+                    {booking.status === "Accepted" ? "Accepted" : "Accept request"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateSoilBookingStatus(booking.id, "Rejected")}
+                    disabled={booking.status !== "Pending"}
+                    aria-label={`Reject soil analysis request from ${booking.farmerName}`}
+                    className="min-h-11 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-extrabold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400"
+                  >
+                    {booking.status === "Rejected" ? "Rejected" : "Reject request"}
+                  </button>
+                </div>
               </article>
             ))}
-          </div>
+            </div>
+            <div className="flex flex-col gap-3 border-t border-green-100 px-5 py-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+              <p>
+                Showing {(currentBookingPage - 1) * bookingsPerPage + 1}–{Math.min(currentBookingPage * bookingsPerPage, filteredBookings.length)} of {filteredBookings.length} bookings
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBookingPage((page) => Math.max(1, page - 1))}
+                  disabled={currentBookingPage === 1}
+                  className="min-h-10 rounded-lg border border-green-100 bg-white px-3 text-xs font-bold text-green-800 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  Previous
+                </button>
+                <span className="min-w-16 text-center text-xs font-bold text-gray-600">{currentBookingPage} / {bookingPageCount}</span>
+                <button
+                  type="button"
+                  onClick={() => setBookingPage((page) => Math.min(bookingPageCount, page + 1))}
+                  disabled={currentBookingPage === bookingPageCount}
+                  className="min-h-10 rounded-lg border border-green-100 bg-white px-3 text-xs font-bold text-green-800 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </section>
     </AdminLayout>

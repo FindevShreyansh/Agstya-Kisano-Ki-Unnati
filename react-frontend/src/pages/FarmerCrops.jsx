@@ -177,12 +177,7 @@ function FarmerCrops() {
       {/* ── Top Navbar ─────────────────────────────────────────────── */}
       <nav className="bg-white border-b border-green-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">AGSTYA</h1>
-            <p className="text-xs text-gray-500">
-              Kisano Ki Unnati • Buyer Portal
-            </p>
-          </div>
+          <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
 
           <Link
             to="/buyer/dashboard"
