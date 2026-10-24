@@ -28,7 +28,6 @@ function SupportInbox({ role }) {
   const [sending, setSending] = useState(false);
   const [escalating, setEscalating] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("OTHER");
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState("");
@@ -94,9 +93,8 @@ function SupportInbox({ role }) {
     try {
       const created = await apiRequest("/support/conversations", {
         method: "POST",
-        body: { subject, category },
+        body: { category },
       });
-      setSubject("");
       setShowNew(false);
       await loadConversations();
       navigate(`${basePath}/support/${created.id}`);
@@ -174,9 +172,7 @@ function SupportInbox({ role }) {
                   {categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
-              <label>Brief subject
-                <input value={subject} onChange={(event) => setSubject(event.target.value)} minLength={3} maxLength={180} required placeholder="For example, soil test booking" />
-              </label>
+              <p className="support-form-hint">Your first message will automatically become the conversation name.</p>
               <button className="support-primary-button" disabled={creating}>{creating ? "Starting…" : "Start conversation"}</button>
             </form>
           )}
