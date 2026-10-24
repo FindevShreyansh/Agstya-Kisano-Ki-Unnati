@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const router = require('express').Router();
 const pool = require('../db/pool');
 const { authenticate, authorize } = require('../middleware/auth');
+const { isAiAvailable, generateSupportReply, generateIssueSummary } = require('../services/supportAi');
 
 const categories = new Set(['SOIL', 'CROP_PLANNING', 'LISTINGS', 'BUYER_ENQUIRIES', 'PURCHASE_REQUESTS', 'ACCOUNT', 'OTHER']);
 const priorities = new Set(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
@@ -48,14 +49,15 @@ router.get('/conversations', authorize('FARMER', 'BUYER'), asyncRoute(async (req
 }));
 
 router.post('/conversations', authorize('FARMER', 'BUYER'), asyncRoute(async (req, res) => {
-  const subject = typeof req.body.subject === 'string' ? req.body.subject.trim().slice(0, 180) : '';
+  const subject = typeof req.body.subject === 'string' && req.body.subject.trim()
+    ? req.body.subject.trim().slice(0, 180)
+    : 'New support conversation';
   const category = categories.has(req.body.category) ? req.body.category : 'OTHER';
-  if (subject.length < 3) return res.status(400).json({ message: 'Please enter a short description of the issue.' });
   const [result] = await pool.query(
     'INSERT INTO support_conversations (owner_user_id, owner_role, category, subject) VALUES (?, ?, ?, ?)',
     [req.user.id, req.user.role, category, subject]
   );
-  res.status(201).json({ id: result.insertId, subject, category, state: 'UNESCALATED', aiAvailable: false });
+  res.status(201).json({ id: result.insertId, subject, category, state: 'UNESCALATED', aiAvailable: isAiAvailable() });
 }));
 
 router.get('/conversations/:id', authorize('FARMER', 'BUYER'), asyncRoute(async (req, res) => {
@@ -80,7 +82,7 @@ router.get('/conversations/:id', authorize('FARMER', 'BUYER'), asyncRoute(async 
       [conversation.id]
     );
     await connection.commit();
-    res.json({ conversation, messages, aiAvailable: false });
+    res.json({ conversation, messages, aiAvailable: isAiAvailable() });
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -112,13 +114,22 @@ router.post('/conversations/:id/messages', authorize('FARMER', 'BUYER'), asyncRo
       );
       if (duplicate) {
         await connection.commit();
-        return res.json({ duplicate: true, aiAvailable: false });
+        return res.json({ duplicate: true, aiAvailable: isAiAvailable() });
       }
     }
     await connection.query(
       'INSERT INTO support_messages (conversation_id, sender_type, sender_user_id, body, client_message_id) VALUES (?, \'USER\', ?, ?, ?)',
       [conversation.id, req.user.id, body, clientMessageId]
     );
+    const conversationSubject = conversation.subject === 'New support conversation'
+      ? body.replace(/\s+/g, ' ').trim().slice(0, 180) || 'Support request'
+      : conversation.subject;
+    if (conversation.subject === 'New support conversation') {
+      await connection.query(
+        'UPDATE support_conversations SET subject = ? WHERE id = ?',
+        [conversationSubject, conversation.id]
+      );
+    }
     if (conversation.state === 'ESCALATED') {
       await connection.query(
         `UPDATE support_tickets SET status = CASE WHEN status IN ('WAITING_FOR_USER','RESOLVED','CLOSED') THEN 'IN_PROGRESS' ELSE status END,
@@ -128,12 +139,47 @@ router.post('/conversations/:id/messages', authorize('FARMER', 'BUYER'), asyncRo
     }
     await connection.query('UPDATE support_conversations SET updated_at = NOW() WHERE id = ?', [conversation.id]);
     await connection.commit();
+
+    let aiReply = null;
+    let aiFailed = false;
+    if (conversation.state === 'UNESCALATED' && isAiAvailable()) {
+      try {
+        const [history] = await pool.query(
+          `SELECT sender_type, body
+           FROM support_messages
+           WHERE conversation_id = ?
+           ORDER BY id ASC
+           LIMIT 20`,
+          [conversation.id]
+        );
+        aiReply = await generateSupportReply({
+          category: conversation.category,
+          subject: conversationSubject,
+          messages: history,
+        });
+        await pool.query(
+          `INSERT INTO support_messages (conversation_id, sender_type, body)
+           VALUES (?, 'AI', ?)`,
+          [conversation.id, aiReply]
+        );
+        await pool.query('UPDATE support_conversations SET updated_at = NOW() WHERE id = ?', [conversation.id]);
+      } catch (error) {
+        aiFailed = true;
+        console.error('Support AI unavailable:', error.message);
+      }
+    }
+
     res.status(201).json({
       saved: true,
-      aiAvailable: false,
+      aiAvailable: isAiAvailable(),
+      aiReplied: Boolean(aiReply),
       mode: conversation.state,
-      message: conversation.state === 'UNESCALATED'
+      message: aiReply
+        ? 'Message saved and AI support replied.'
+        : conversation.state === 'UNESCALATED' && !isAiAvailable()
         ? 'AI support is not configured yet. Your message is saved; you can escalate this conversation to the admin team.'
+        : conversation.state === 'UNESCALATED' && aiFailed
+        ? 'Your message is saved, but AI support is temporarily unavailable. You can try again or escalate this conversation to the admin team.'
         : 'Your message is saved in this ticket. The support team can reply in this same conversation.',
     });
   } catch (error) {
@@ -163,15 +209,33 @@ router.post('/conversations/:id/escalate', authorize('FARMER', 'BUYER'), asyncRo
       await connection.commit();
       return res.json(existing);
     }
+    let summary = null;
+    if (isAiAvailable()) {
+      const [messages] = await connection.query(
+        'SELECT sender_type, body FROM support_messages WHERE conversation_id = ? ORDER BY id ASC',
+        [conversation.id]
+      );
+      try {
+        summary = await generateIssueSummary({
+          category: conversation.category,
+          subject: conversation.subject,
+          messages,
+        });
+      } catch (error) {
+        console.error('Support summary unavailable:', error.message);
+      }
+    }
+
     const code = `AGT-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
     const [result] = await connection.query(
-      `INSERT INTO support_tickets (ticket_code, conversation_id, escalation_reason, priority, status)
-       VALUES (?, ?, ?, ?, 'OPEN')`,
-      [code, conversation.id, reason, priority]
+      `INSERT INTO support_tickets
+       (ticket_code, conversation_id, summary, summary_is_ai, escalation_reason, priority, status)
+       VALUES (?, ?, ?, ?, ?, ?, 'OPEN')`,
+      [code, conversation.id, summary, summary ? 1 : 0, reason, priority]
     );
     await connection.query("UPDATE support_conversations SET state = 'ESCALATED', updated_at = NOW() WHERE id = ?", [conversation.id]);
     await connection.commit();
-    res.status(201).json({ id: result.insertId, ticket_code: code, conversation_id: conversation.id, status: 'OPEN', priority, escalation_reason: reason, summary: null, summary_is_ai: false });
+    res.status(201).json({ id: result.insertId, ticket_code: code, conversation_id: conversation.id, status: 'OPEN', priority, escalation_reason: reason, summary, summary_is_ai: Boolean(summary) });
   } catch (error) {
     await connection.rollback();
     throw error;
