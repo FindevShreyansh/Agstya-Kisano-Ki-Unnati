@@ -33,16 +33,7 @@ router.get('/farmer', authenticate, authorize('FARMER'), async (req, res) => {
        ORDER BY pr.created_at DESC`,
       [farmerId]
     ),
-    pool.query(
-      `SELECT ba.*, br.crop_name, br.delivery_city, br.delivery_date, u.name AS buyer_name
-       FROM bulk_allocations ba
-       JOIN bulk_plans bp ON bp.id = ba.plan_id AND bp.selected = 1
-       JOIN bulk_requirements br ON br.id = bp.requirement_id
-       JOIN users u ON u.id = br.buyer_id
-       WHERE ba.farmer_id = ?
-       ORDER BY ba.created_at DESC`,
-      [farmerId]
-    ),
+    loadFarmerBulkRequests(farmerId),
     pool.query(
       `SELECT
          COALESCE(SUM(CASE WHEN status = 'COMPLETED' OR (status = 'RESOLVED' AND dispute_outcome = 'FARMER_FAVOR') THEN 1 ELSE 0 END), 0) AS positive_events,
@@ -85,6 +76,25 @@ router.get('/farmer', authenticate, authorize('FARMER'), async (req, res) => {
     },
   });
 });
+
+async function loadFarmerBulkRequests(farmerId) {
+  try {
+    return await pool.query(
+      `SELECT ba.*, br.crop_name, br.delivery_city, br.delivery_date, u.name AS buyer_name
+       FROM bulk_allocations ba
+       JOIN bulk_plans bp ON bp.id = ba.plan_id AND bp.selected = 1
+       JOIN bulk_requirements br ON br.id = bp.requirement_id
+       JOIN users u ON u.id = br.buyer_id
+       WHERE ba.farmer_id = ?
+       ORDER BY ba.created_at DESC`,
+      [farmerId]
+    );
+  } catch (error) {
+    if (error.code !== 'ER_NO_SUCH_TABLE') throw error;
+    console.warn('Bulk procurement tables are missing; returning no bulk requests for the farmer dashboard. Apply backend/src/db/schema.sql to enable this feature.');
+    return [[]];
+  }
+}
 
 // GET /api/dashboard/admin  — counts + recent activity
 router.get('/admin', authenticate, authorize('ADMIN'), async (req, res) => {

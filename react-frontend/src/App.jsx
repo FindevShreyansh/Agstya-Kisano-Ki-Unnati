@@ -7,6 +7,7 @@ import RoleSelection from "./pages/RoleSelection";
 import FarmerLogin from "./pages/FarmerLogin";
 import FarmerRegister from "./pages/FarmerRegister";
 import FarmerDashboard from "./pages/FarmerDashboard";
+import SoilAnalysis from "./pages/SoilAnalysis";
 import CropPlanning from "./pages/CropPlanning";
 import BuyerList from "./pages/BuyerList";
 import Procurement from "./pages/Procurement";
@@ -44,6 +45,7 @@ function App() {
       <Route path="/farmer/login" element={<FarmerLogin />} />
       <Route path="/farmer/register" element={<FarmerRegister />} />
       <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
+      <Route path="/farmer/soil-analysis" element={<SoilAnalysis />} />
       <Route path="/farmer/book-expert" element={<BookExpert />} />
       <Route path="/farmer/crop-planning" element={<CropPlanning />}/>  
       <Route path="/farmer/buyers" element={<BuyerList />}/>  

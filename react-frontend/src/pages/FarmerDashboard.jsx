@@ -40,6 +40,13 @@ function FarmerDashboard() {
   // Keep every existing farmer action and its destination together for clarity.
   const farmerActions = [
     {
+      title: "Soil Analysis",
+      description: "Track soil test requests and review available lab reports and crop recommendations.",
+      icon: "🧪",
+      link: "/farmer/soil-analysis",
+      action: "View Soil Analysis",
+    },
+    {
       title: "Book Soil Analysis Expert",
       description: "Arrange a field visit with our team for professional soil analysis.",
       icon: "🧪",
