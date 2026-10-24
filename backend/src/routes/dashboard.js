@@ -6,7 +6,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 router.get('/farmer', authenticate, authorize('FARMER'), async (req, res) => {
   const farmerId = req.user.id;
 
-  const [[farms], [soilRequests], [listings], [purchaseRequests]] = await Promise.all([
+  const [[farms], [soilRequests], [listings], [purchaseRequests], [bulkRequests], [trustRows]] = await Promise.all([
     pool.query('SELECT * FROM farms WHERE farmer_id = ? ORDER BY created_at DESC', [farmerId]),
     pool.query(
       `SELECT r.*, f.location AS farm_location, f.district, f.state
@@ -33,7 +33,28 @@ router.get('/farmer', authenticate, authorize('FARMER'), async (req, res) => {
        ORDER BY pr.created_at DESC`,
       [farmerId]
     ),
+    pool.query(
+      `SELECT ba.*, br.crop_name, br.delivery_city, br.delivery_date, u.name AS buyer_name
+       FROM bulk_allocations ba
+       JOIN bulk_plans bp ON bp.id = ba.plan_id AND bp.selected = 1
+       JOIN bulk_requirements br ON br.id = bp.requirement_id
+       JOIN users u ON u.id = br.buyer_id
+       WHERE ba.farmer_id = ?
+       ORDER BY ba.created_at DESC`,
+      [farmerId]
+    ),
+    pool.query(
+      `SELECT
+         COALESCE(SUM(CASE WHEN status = 'COMPLETED' OR (status = 'RESOLVED' AND dispute_outcome = 'FARMER_FAVOR') THEN 1 ELSE 0 END), 0) AS positive_events,
+         COALESCE(SUM(CASE WHEN (status = 'CANCELLED' AND cancellation_actor = 'FARMER')
+                              OR (status = 'RESOLVED' AND dispute_outcome = 'BUYER_FAVOR') THEN 1 ELSE 0 END), 0) AS negative_events
+       FROM procurement_orders WHERE farmer_id = ?`,
+      [farmerId]
+    ),
   ]);
+  const positiveEvents = Number(trustRows[0].positive_events);
+  const negativeEvents = Number(trustRows[0].negative_events);
+  const trustScore = Number(((1 + positiveEvents) / (2 + positiveEvents + negativeEvents)).toFixed(4));
 
   // Fetch soil reports and recommendations for completed requests
   const completedRequests = soilRequests.filter(r => r.status === 'COMPLETED');
@@ -55,6 +76,13 @@ router.get('/farmer', authenticate, authorize('FARMER'), async (req, res) => {
     soilReports: reportsAndRecs,
     listings,
     purchaseRequestsReceived: purchaseRequests,
+    bulkRequestsReceived: bulkRequests,
+    trust: {
+      score: trustScore,
+      band: trustScore < 0.4 ? 'LOW' : trustScore < 0.75 ? 'MEDIUM' : 'HIGH',
+      positiveEvents,
+      negativeEvents,
+    },
   });
 });
 

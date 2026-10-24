@@ -56,6 +56,9 @@ Indian farmers often lack access to reliable soil health data, fair pricing, and
 - Browse the crop marketplace with search and filters (crop, state, district, quality, price range)
 - Submit purchase requests on available listings
 - Track request status (Pending / Accepted / Rejected)
+- Create bulk procurement requirements in kilograms or quintals
+- Compare lowest-cost, balanced, and fewest-farmers sourcing plans
+- See farmer trust scores, estimated distance, produce subtotal, and logistics estimate
 
 ### For Soil Experts 🔬
 - View assigned soil test requests with farm and farmer details
@@ -67,6 +70,24 @@ Indian farmers often lack access to reliable soil health data, fair pricing, and
 - Submit lab reports (auto-triggers crop recommendations)
 - Configure reference prices and premiums per crop
 - Admin dashboard with platform-wide statistics
+- Resolve procurement disputes using documented outcomes that update farmer trust
+
+### Bulk Procurement and Trust
+
+Bulk requirements are normalized to kilograms and match only available inventory. Buyers specify crop,
+minimum quality, delivery place/date, optional produce budget, and maximum farmers. The engine produces
+three explainable plans and does not reserve stock during preview. After a buyer confirms a plan, each
+farmer accepts or rejects their allocation; inventory is reserved atomically only after acceptance.
+
+Farmer trust starts at `0.50` and uses Bayesian smoothing:
+
+```text
+trust = (1 + positive outcomes) / (2 + positive outcomes + negative outcomes)
+```
+
+Completed orders and disputes resolved in the farmer's favour are positive. Farmer-attributed
+cancellations and disputes resolved in the buyer's favour are negative. Dismissed and open disputes
+are neutral. Bands are LOW (`<0.40`), MEDIUM (`0.40–0.74`), and HIGH (`>=0.75`).
 
 ---
 
@@ -297,6 +318,21 @@ All endpoints return JSON. Protected routes require: `Authorization: Bearer <tok
 | `PATCH` | `/market/purchase-requests/:id/status` | FARMER | Accept or reject a purchase request |
 | `GET` | `/market/reference-prices` | ADMIN | View all reference prices |
 | `PUT` | `/market/reference-prices/:id` | ADMIN | Update reference price config |
+
+### Bulk Procurement
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| `GET` | `/bulk/places?q=` | Authenticated | Search supported delivery places |
+| `POST` | `/bulk/requirements/plan` | BUYER | Create a requirement and generate three sourcing plans |
+| `GET` | `/bulk/requirements/mine` | BUYER | View requirements, plans, and allocations |
+| `POST` | `/bulk/requirements/:id/confirm` | BUYER | Confirm one plan and notify its farmers |
+| `GET` | `/bulk/allocations/received` | FARMER | View selected-plan allocations |
+| `PATCH` | `/bulk/allocations/:id/status` | FARMER | Accept/reject an allocation and reserve stock on acceptance |
+| `GET` | `/bulk/trust/:farmerId` | Authenticated | View a farmer's trust score and explanation |
+| `PATCH` | `/bulk/orders/:id/status` | BUYER/FARMER/ADMIN | Advance an order or raise a dispute |
+| `GET` | `/bulk/orders/disputes` | ADMIN | View open procurement disputes |
+| `PATCH` | `/bulk/orders/:id/resolve` | ADMIN | Resolve a disputed order |
 
 ### Dashboards
 

@@ -23,6 +23,8 @@ async function seed() {
     // ---- Clear tables in safe order ----
     await db.query('SET FOREIGN_KEY_CHECKS = 0');
     for (const t of [
+      'procurement_order_events','procurement_orders','bulk_allocations','bulk_plans','bulk_requirements',
+      'place_catalog',
       'purchase_requests','price_offers','crop_listings','crop_recommendations',
       'soil_reports','soil_test_requests','crop_profiles','reference_prices',
       'farms','users'
@@ -44,6 +46,17 @@ async function seed() {
     const expertId = 2;
     const farmerId = 3;
     const buyerId  = 4;
+
+    await db.query(
+      `INSERT INTO users (name, email, phone, password, role) VALUES
+        ('Sita Reddy', 'tomato.sita@agritech.test', '9000000011', ?, 'FARMER'),
+        ('Manoj Patil', 'tomato.manoj@agritech.test', '9000000012', ?, 'FARMER'),
+        ('Anita Devi', 'tomato.anita@agritech.test', '9000000013', ?, 'FARMER'),
+        ('Raju Naik', 'tomato.raju@agritech.test', '9000000014', ?, 'FARMER'),
+        ('Lakshmi Bai', 'tomato.lakshmi@agritech.test', '9000000015', ?, 'FARMER'),
+        ('Suresh Gowda', 'tomato.suresh@agritech.test', '9000000016', ?, 'FARMER')`,
+      [PASS, PASS, PASS, PASS, PASS, PASS]
+    );
 
     // ---- Farm ----
     const [fRes] = await db.query(
@@ -128,6 +141,7 @@ async function seed() {
       [farmerId]
     );
     const listingId = clRes.insertId;
+    await db.query('UPDATE crop_listings SET available_quantity = quantity WHERE id = ?', [listingId]);
 
     // ---- Price offer (auto-calculated) ----
     // Reference ₹2200 + Quality A premium ₹250 + Demand (5% of 2200 = ₹110) + Location ₹50 = ₹2610
@@ -143,6 +157,46 @@ async function seed() {
        VALUES (?, ?, 200, 2600, 'PENDING')`,
       [buyerId, listingId]
     );
+
+    await db.query(
+      `INSERT INTO place_catalog (state, district, city, aliases) VALUES
+       ('Karnataka', 'Tumkur', 'Tumkur', 'Tiptur,Tumakuru'),
+       ('Karnataka', 'Kolar', 'Kolar', ''),
+       ('Karnataka', 'Chikkaballapur', 'Chikkaballapur', ''),
+       ('Karnataka', 'Bangalore Urban', 'Bengaluru', 'Bangalore'),
+       ('Karnataka', 'Mandya', 'Mandya', ''),
+       ('Karnataka', 'Hassan', 'Hassan', '')`
+    );
+
+    const tomatoFarmers = [
+      [5, 'Kolar Farm', 'Kolar', 1800, 24, 'A', 42],
+      [6, 'Chikkaballapur Farm', 'Chikkaballapur', 2200, 26, 'A', 45],
+      [7, 'Bengaluru Rural Farm', 'Bangalore Urban', 1600, 25, 'B', 48],
+      [8, 'Mandya Farm', 'Mandya', 2000, 23, 'B', 55],
+      [9, 'Hassan Farm', 'Hassan', 2500, 22, 'C', 60],
+      [10, 'Tumkur Farm', 'Tumkur', 1900, 21, 'A', 35],
+    ];
+    for (const [farmer, location, district, quantity, price, quality, distance] of tomatoFarmers) {
+      const [farm] = await db.query(
+        `INSERT INTO farms (farmer_id, location, district, state, area_acres) VALUES (?, ?, ?, 'Karnataka', 4.00)`,
+        [farmer, location, district]
+      );
+      await db.query(
+        `INSERT INTO crop_listings
+         (farmer_id, crop_name, variety, quantity, available_quantity, unit, harvest_date, location, district, state, quality, expected_price, status, verified)
+         VALUES (?, 'Tomato', 'Hybrid', ?, ?, 'kg', '2026-11-02', ?, ?, 'Karnataka', ?, ?, 'AVAILABLE', 1)`,
+        [farmer, quantity, quantity, location, district, quality, price]
+      );
+      if (distance === 35) {
+        await db.query(
+          `INSERT INTO procurement_orders
+           (buyer_id, farmer_id, listing_id, quantity_kg, status)
+           VALUES (?, ?, LAST_INSERT_ID(), 100, 'COMPLETED')`,
+          [buyerId, farmer]
+        );
+      }
+      void farm;
+    }
 
     await db.commit();
     console.log('✅ Demo data seeded successfully.');
