@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { login } from "../api";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function FarmerLogin() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function FarmerLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6">
+    <TranslationTree><div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6">
 
       <div className="w-full max-w-md">
 
@@ -143,10 +144,6 @@ function FarmerLogin() {
 
           </div>
 
-          <p className="mt-5 text-center text-xs text-gray-500">
-            Demo account: farmer@agritech.test · Password: Demo@123
-          </p>
-
         </div>
 
 
@@ -164,7 +161,7 @@ function FarmerLogin() {
 
       </div>
 
-    </div>
+    </div></TranslationTree>
   );
 }
 

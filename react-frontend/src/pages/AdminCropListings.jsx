@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const listingStatuses = {
   Active: "bg-green-100 text-green-800",
@@ -17,7 +18,7 @@ function AdminCropListings() {
   const selectedRecord = records.find((record) => record.id === selectedId);
 
   return (
-    <AdminLayout title="Crop Listing Management" subtitle="Review, approve, and remove farmer crop listings.">
+    <TranslationTree><AdminLayout title="Crop Listing Management" subtitle="Review, approve, and remove farmer crop listings.">
       <div className="mb-5 max-w-xs">
         <label htmlFor="crop-filter" className="mb-2 block text-sm font-semibold text-emerald-50/85">Filter by crop</label>
         <select id="crop-filter" value={cropFilter} onChange={(event) => setCropFilter(event.target.value)} className="w-full rounded-xl border border-emerald-100/20 bg-[#194a36] px-4 py-3 font-semibold text-emerald-50 shadow-lg shadow-black/10 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
@@ -66,7 +67,7 @@ function AdminCropListings() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </AdminLayout></TranslationTree>
   );
 }
 

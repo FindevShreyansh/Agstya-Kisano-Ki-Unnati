@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function BuyerList() {
 
@@ -72,7 +73,7 @@ const filteredBuyers = selectedCrop
   : buyers;
 
   return (
-    <div className="farmer-page min-h-screen bg-green-50">
+    <TranslationTree><div className="farmer-page min-h-screen bg-green-50">
 
       <div className="bg-white border-b border-green-100 px-8 py-5">
         <Link
@@ -197,7 +198,7 @@ const filteredBuyers = selectedCrop
   </div>
 )}
 
-    </div>
+    </div></TranslationTree>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getSoilBookings, saveSoilBookings } from "../data/soilBookings";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function BookExpert() {
   const [submitted, setSubmitted] = useState(false);
@@ -33,7 +34,7 @@ function BookExpert() {
   const labelClassName = "mb-2 block text-sm font-semibold text-gray-700";
 
   return (
-    <div className="farmer-page min-h-screen bg-[#F7FAF7] flex flex-col">
+    <TranslationTree><div className="farmer-page min-h-screen bg-[#F7FAF7] flex flex-col">
       <header className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-5 py-3 shadow-sm backdrop-blur-xl sm:px-8">
         <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
           <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
@@ -104,7 +105,7 @@ function BookExpert() {
           )}
         </section>
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

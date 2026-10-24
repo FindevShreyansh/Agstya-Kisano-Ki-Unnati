@@ -1,4 +1,4 @@
-const notificationStyles = {
+import { TranslationTree } from "../i18n/TranslationTree";const notificationStyles = {
   success: {
     icon: "✅",
     border: "border-l-green-500",
@@ -35,7 +35,7 @@ function NotificationCenter({
   onMarkAllAsRead,
 }) {
   return (
-    <section className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
+    <TranslationTree><section className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-100">
         <h2 className="text-lg font-bold text-gray-800">
           Notifications <span aria-label={`${unreadCount} unread`}>🔔 {unreadCount}</span>
@@ -119,7 +119,7 @@ function NotificationCenter({
           })}
         </ul>
       )}
-    </section>
+    </section></TranslationTree>
   );
 }
 

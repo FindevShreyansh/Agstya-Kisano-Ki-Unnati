@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const procurementStages = [
   "Interest Sent",
@@ -108,7 +109,7 @@ function Procurement() {
   };
 
   return (
-    <div className="farmer-page min-h-screen bg-[#F7FAF7] flex flex-col">
+    <TranslationTree><div className="farmer-page min-h-screen bg-[#F7FAF7] flex flex-col">
       <nav className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
@@ -314,7 +315,7 @@ function Procurement() {
       <footer className="text-center py-6 text-sm text-gray-400 border-t border-gray-100 bg-white">
         AGSTYA – Kisano Ki Unnati • Empowering Farmers & Buyers 🌱
       </footer>
-    </div>
+    </div></TranslationTree>
   );
 }
 

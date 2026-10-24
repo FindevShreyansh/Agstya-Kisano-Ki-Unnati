@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
+    <TranslationTree><div className="min-h-screen bg-[#F7FAF7] flex flex-col">
       <header className="bg-white border-b border-green-100 px-5 sm:px-8 py-5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
@@ -87,12 +88,9 @@ function AdminLogin() {
             </button>
           </form>
 
-          <p className="mt-5 text-center text-xs text-gray-500">
-            Demo credentials: admin@agritech.test / Demo@123
-          </p>
         </section>
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

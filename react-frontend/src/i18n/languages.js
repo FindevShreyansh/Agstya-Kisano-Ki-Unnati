@@ -1,0 +1,27 @@
+export const languages = [
+  { code: "en", name: "English", direction: "ltr" },
+  { code: "as", name: "অসমীয়া · Assamese", direction: "ltr" },
+  { code: "bn", name: "বাংলা · Bengali", direction: "ltr" },
+  { code: "brx", name: "बड़ो · Bodo", direction: "ltr" },
+  { code: "doi", name: "डोगरी · Dogri", direction: "ltr" },
+  { code: "gu", name: "ગુજરાતી · Gujarati", direction: "ltr" },
+  { code: "hi", name: "हिन्दी · Hindi", direction: "ltr" },
+  { code: "kn", name: "ಕನ್ನಡ · Kannada", direction: "ltr" },
+  { code: "ks", name: "کٲشُر · Kashmiri", direction: "rtl" },
+  { code: "kok", name: "कोंकणी · Konkani", direction: "ltr" },
+  { code: "mai", name: "मैथिली · Maithili", direction: "ltr" },
+  { code: "ml", name: "മലയാളം · Malayalam", direction: "ltr" },
+  { code: "mni", name: "মেইতেই · Manipuri", direction: "ltr" },
+  { code: "mr", name: "मराठी · Marathi", direction: "ltr" },
+  { code: "ne", name: "नेपाली · Nepali", direction: "ltr" },
+  { code: "or", name: "ଓଡ଼ିଆ · Odia", direction: "ltr" },
+  { code: "pa", name: "ਪੰਜਾਬੀ · Punjabi", direction: "ltr" },
+  { code: "sa", name: "संस्कृतम् · Sanskrit", direction: "ltr" },
+  { code: "sat", name: "ᱥᱟᱱᱛᱟᱲᱤ · Santhali", direction: "ltr" },
+  { code: "sd", name: "سنڌي · Sindhi", direction: "rtl" },
+  { code: "ta", name: "தமிழ் · Tamil", direction: "ltr" },
+  { code: "te", name: "తెలుగు · Telugu", direction: "ltr" },
+  { code: "ur", name: "اردو · Urdu", direction: "rtl" },
+];
+
+export const languageStorageKey = "agstya_language";

@@ -1,11 +1,12 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import LanguageSwitcher from "./components/LanguageSwitcher";
+import { useLanguage } from "./i18n/useLanguage";
 
 import Home from "./pages/Home";
 import RoleSelection from "./pages/RoleSelection";
 import FarmerLogin from "./pages/FarmerLogin";
 import FarmerRegister from "./pages/FarmerRegister";
 import FarmerDashboard from "./pages/FarmerDashboard";
-import SoilAnalysis from "./pages/SoilAnalysis";
 import CropPlanning from "./pages/CropPlanning";
 import BuyerList from "./pages/BuyerList";
 import Procurement from "./pages/Procurement";
@@ -25,13 +26,15 @@ import AdminBuyers from "./pages/AdminBuyers";
 import AdminCropListings from "./pages/AdminCropListings";
 import AdminProcurement from "./pages/AdminProcurement";
 import BookExpert from "./pages/BookExpert";
-import BulkProcurement from "./pages/BulkProcurement";
+import SupportInbox from "./pages/SupportInbox";
+import AdminSupport from "./pages/AdminSupport";
 
 function App() {
   const location = useLocation();
+  const { language } = useLanguage();
 
   return (
-    <div key={location.pathname} className="route-transition">
+    <div key={location.pathname} className="route-transition" data-language={language}>
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/roles" element={<RoleSelection />} />
@@ -41,12 +44,13 @@ function App() {
       <Route path="/farmer/register" element={<FarmerRegister />} />
       <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
       <Route path="/farmer/book-expert" element={<BookExpert />} />
-      <Route path="/farmer/soil-analysis" element={<SoilAnalysis />} /> 
       <Route path="/farmer/crop-planning" element={<CropPlanning />}/>  
       <Route path="/farmer/buyers" element={<BuyerList />}/>  
       <Route path="/farmer/procurement" element={<Procurement />}/>
       <Route path="/farmer/list-crop" element={<ListCrop />}/>
       <Route path="/farmer/notifications" element={<FarmerNotifications />} />
+      <Route path="/farmer/support" element={<SupportInbox role="FARMER" />} />
+      <Route path="/farmer/support/:conversationId" element={<SupportInbox role="FARMER" />} />
 
       {/* Buyer Routes */}
       <Route path="/buyer/login" element={<BuyerLogin />} />
@@ -57,6 +61,8 @@ function App() {
       <Route path="/buyer/procurement" element={<BuyerProcurement />} />
       <Route path="/buyer/profile" element={<BuyerProfile />} />
       <Route path="/buyer/notifications" element={<BuyerNotifications />} />
+      <Route path="/buyer/support" element={<SupportInbox role="BUYER" />} />
+      <Route path="/buyer/support/:conversationId" element={<SupportInbox role="BUYER" />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
@@ -65,7 +71,9 @@ function App() {
       <Route path="/admin/buyers" element={<AdminBuyers />} />
       <Route path="/admin/crops" element={<AdminCropListings />} />
       <Route path="/admin/procurement" element={<AdminProcurement />} />
+      <Route path="/admin/support" element={<AdminSupport />} />
     </Routes>
+    <LanguageSwitcher />
     </div>
   );
 }

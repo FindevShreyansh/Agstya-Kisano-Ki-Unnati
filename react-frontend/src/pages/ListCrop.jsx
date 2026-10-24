@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function ListCrop() {
   // Stores the crop details entered by the farmer
@@ -43,7 +44,7 @@ function ListCrop() {
   };
 
   return (
-    <div className="farmer-page min-h-screen bg-green-50">
+    <TranslationTree><div className="farmer-page min-h-screen bg-green-50">
 
       {/* Top navigation */}
       <div className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
@@ -207,7 +208,7 @@ function ListCrop() {
         )}
 
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

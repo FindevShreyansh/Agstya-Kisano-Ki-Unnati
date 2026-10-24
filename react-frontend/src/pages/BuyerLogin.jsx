@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function BuyerLogin() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function BuyerLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6 py-12">
+    <TranslationTree><div className="min-h-screen bg-[#F7FAF7] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         {/* Brand Logo & Name */}
         <div className="text-center mb-8">
@@ -108,11 +109,6 @@ function BuyerLogin() {
             </button>
           </form>
 
-          {/* Registration Hint */}
-          <div className="text-center mt-7 text-sm text-gray-500">
-            Demo account: <span className="font-medium text-gray-700">buyer@agritech.test</span>
-            <br />Password: <span className="font-medium text-gray-700">Demo@123</span>
-          </div>
         </div>
 
         {/* Back link */}
@@ -125,7 +121,7 @@ function BuyerLogin() {
           </Link>
         </div>
       </div>
-    </div>
+    </div></TranslationTree>
   );
 }
 
