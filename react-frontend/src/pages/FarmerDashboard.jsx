@@ -34,6 +34,7 @@ function FarmerDashboard() {
     { label: "Soil test requests", value: dashboard?.soilRequests?.length ?? "—", icon: "🧪", color: "text-sky-700", tint: "bg-sky-100" },
     { label: "Crop listings", value: dashboard?.listings?.length ?? "—", icon: "🌾", color: "text-amber-700", tint: "bg-amber-100" },
     { label: "Buyer requests", value: dashboard?.purchaseRequestsReceived?.length ?? "—", icon: "🤝", color: "text-violet-700", tint: "bg-violet-100" },
+    { label: "Trust score", value: dashboard ? `${dashboard.trust.score} · ${dashboard.trust.band}` : "—", icon: "🛡️", color: "text-emerald-700", tint: "bg-emerald-100" },
   ];
 
   // Keep every existing farmer action and its destination together for clarity.
@@ -168,6 +169,36 @@ function FarmerDashboard() {
               Try again
             </button>
           </div>
+        )}
+
+        {dashboard?.trust && (
+          <section className="mb-8 rounded-3xl border border-green-100 bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <span className="text-xs font-extrabold uppercase tracking-[0.16em] text-green-700">Your reliability profile</span>
+                <h2 className="mt-1 text-2xl font-extrabold text-gray-900">Trust score: {dashboard.trust.score} <span className="text-green-700">· {dashboard.trust.band}</span></h2>
+                <p className="mt-2 text-sm text-gray-600">Completed orders and fair dispute outcomes build trust. Only farmer-attributed cancellations and buyer-favor disputes reduce it.</p>
+              </div>
+              <div className="rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-800">
+                <p>{dashboard.trust.positiveEvents} positive outcomes</p>
+                <p>{dashboard.trust.negativeEvents} farmer-attributed issues</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {dashboard?.bulkRequestsReceived?.length > 0 && (
+          <section className="mb-8 rounded-3xl border border-amber-100 bg-white p-6 shadow-sm">
+            <div className="mb-4"><span className="text-xs font-extrabold uppercase tracking-[0.16em] text-amber-700">Bulk procurement</span><h2 className="mt-1 text-2xl font-extrabold text-gray-900">Requests needing your response</h2></div>
+            <div className="space-y-3">
+              {dashboard.bulkRequestsReceived.map((request) => (
+                <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-100 p-4">
+                  <div><p className="font-bold text-gray-900">{request.crop_name} · {Number(request.quantity_kg).toLocaleString()} kg</p><p className="text-sm text-gray-500">Buyer: {request.buyer_name} · Delivery: {request.delivery_city} · {request.delivery_date}</p></div>
+                  <div className="flex items-center gap-2"><span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">{request.status}</span>{request.status === "PENDING" && <><button type="button" onClick={async () => { try { await apiRequest(`/bulk/allocations/${request.id}/status`, { method: "PATCH", body: { status: "ACCEPTED" } }); window.location.reload(); } catch (requestError) { setError(requestError.message); } }} className="rounded-xl bg-green-700 px-3 py-2 text-xs font-bold text-white">Accept</button><button type="button" onClick={async () => { try { await apiRequest(`/bulk/allocations/${request.id}/status`, { method: "PATCH", body: { status: "REJECTED" } }); window.location.reload(); } catch (requestError) { setError(requestError.message); } }} className="rounded-xl border border-red-200 px-3 py-2 text-xs font-bold text-red-700">Reject</button></>}</div>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         <section aria-labelledby="farmer-actions-heading">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
 import { TranslationTree } from "../i18n/TranslationTree";
@@ -25,8 +25,22 @@ function AdminProcurement() {
   const { records, updateRecord } = useAdminCollection("procurement");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedId, setSelectedId] = useState(null);
+  const [disputes, setDisputes] = useState([]);
+  const [disputeError, setDisputeError] = useState("");
   const filteredRecords = statusFilter === "All" ? records : records.filter((record) => record.status === statusFilter);
   const selectedRecord = records.find((record) => record.id === selectedId);
+
+  const loadDisputes = () => apiRequest("/bulk/orders/disputes").then(setDisputes).catch((error) => setDisputeError(error.message));
+  useEffect(() => { loadDisputes(); }, []);
+
+  const resolveDispute = async (id, outcome) => {
+    try {
+      await apiRequest(`/bulk/orders/${id}/resolve`, { method: "PATCH", body: { outcome, notes: "Reviewed by platform administrator." } });
+      loadDisputes();
+    } catch (error) {
+      setDisputeError(error.message);
+    }
+  };
 
   return (
     <TranslationTree><AdminLayout title="Procurement Monitoring" subtitle="Review procurement requests and update their progress.">

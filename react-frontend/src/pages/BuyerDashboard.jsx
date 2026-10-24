@@ -16,6 +16,13 @@ function BuyerDashboard() {
 
   const buyerActions = [
     {
+      title: "Bulk Procurement",
+      description: "Source a large quantity through an explainable multi-farmer plan.",
+      icon: "📦",
+      link: "/buyer/bulk-procurement",
+      action: "Build a Sourcing Plan",
+    },
+    {
       title: "Post Crop Requirement",
       description: "Share the crop, quantity and quality you’re looking to source.",
       icon: "📋",

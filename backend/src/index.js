@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('express-async-errors');   // catches rejected promises in async handlers → forwards to error middleware
 const express = require('express');
 const cors    = require('cors');
 
@@ -14,6 +15,7 @@ app.use('/api/auth',      require('./routes/auth'));
 app.use('/api/farms',     require('./routes/farms'));
 app.use('/api/soil',      require('./routes/soil'));
 app.use('/api/market',    require('./routes/market'));
+app.use('/api/bulk',      require('./routes/bulk'));
 app.use('/api/users',     require('./routes/users'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/support',   require('./routes/support'));
