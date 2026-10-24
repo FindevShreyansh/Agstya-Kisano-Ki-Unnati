@@ -14,6 +14,7 @@ import ListCrop from "./pages/ListCrop";
 import BuyerLogin from "./pages/BuyerLogin";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import PostRequirement from "./pages/PostRequirement";
+import BulkProcurement from "./pages/BulkProcurement";
 import FarmerCrops from "./pages/FarmerCrops";
 import BuyerProcurement from "./pages/BuyerProcurement";
 import BuyerProfile from "./pages/BuyerProfile";

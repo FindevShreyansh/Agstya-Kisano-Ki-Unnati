@@ -1008,6 +1008,7 @@ body {
 .support-sidebar-heading h2, .admin-inbox-title h2 { margin: 5px 0 0; font-size: 21px; letter-spacing: -.03em; }
 .support-new-button { border: 0; border-radius: 12px; padding: 10px 13px; background: #1c7040; color: white; font-size: 12px; font-weight: 800; cursor: pointer; }
 .support-new-form { display: grid; gap: 13px; margin: 18px 0; padding: 14px; border: 1px solid #dce9da; border-radius: 17px; background: white; }
+.support-form-hint { margin: 0; color: #54715b; font-size: 12px; line-height: 1.45; }
 .support-new-form label, .admin-filter-label { display: grid; gap: 6px; color: #54715b; font-size: 11px; font-weight: 800; }
 .support-new-form input, .support-new-form select, .admin-filter-label input, .admin-ticket-filters select, .admin-ticket-controls select { width: 100%; min-width: 0; border: 1px solid #dce7d8; border-radius: 10px; padding: 10px; background: white; color: #234631; font: inherit; font-size: 12px; }
 .support-conversation-list { display: grid; gap: 8px; max-height: calc(100vh - 260px); margin-top: 18px; overflow-y: auto; }
