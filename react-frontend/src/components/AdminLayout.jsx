@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const adminLinks = [
   { label: "Dashboard", to: "/admin/dashboard" },
@@ -6,6 +7,7 @@ const adminLinks = [
   { label: "Buyers", to: "/admin/buyers" },
   { label: "Crop Listings", to: "/admin/crops" },
   { label: "Procurement", to: "/admin/procurement" },
+  { label: "Support Centre", to: "/admin/support" },
 ];
 
 function AdminLayout({ title, subtitle, children }) {
@@ -14,7 +16,7 @@ function AdminLayout({ title, subtitle, children }) {
   const isDashboard = location.pathname === "/admin/dashboard";
 
   return (
-    <div className="admin-shell min-h-screen flex flex-col">
+    <TranslationTree><div className="admin-shell min-h-screen flex flex-col">
       <header className="admin-topbar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-4">
           <Link to="/admin/dashboard" className="shrink-0">
@@ -63,7 +65,7 @@ function AdminLayout({ title, subtitle, children }) {
       <footer className="admin-footer">
         AGSTYA – Kisano Ki Unnati • Platform Administration
       </footer>
-    </div>
+    </div></TranslationTree>
   );
 }
 

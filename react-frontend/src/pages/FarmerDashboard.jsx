@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { apiRequest, clearSession } from "../api";
 import { useNotifications } from "../hooks/useNotifications";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function FarmerDashboard() {
   const navigate = useNavigate();
@@ -38,13 +39,6 @@ function FarmerDashboard() {
   // Keep every existing farmer action and its destination together for clarity.
   const farmerActions = [
     {
-      title: "Soil Analysis",
-      description: "Check your soil and see which crops may grow well.",
-      icon: "🌱",
-      link: "/farmer/soil-analysis",
-      action: "Check Soil",
-    },
-    {
       title: "Book Soil Analysis Expert",
       description: "Arrange a field visit with our team for professional soil analysis.",
       icon: "🧪",
@@ -79,10 +73,17 @@ function FarmerDashboard() {
       link: "/farmer/list-crop",
       action: "List Crop",
     },
+    {
+      title: "Farmer Support",
+      description: "Ask a question or continue a support request with the admin team.",
+      icon: "💬",
+      link: "/farmer/support",
+      action: "Get Support",
+    },
   ];
 
   return (
-    <div className="farmer-page min-h-screen bg-[#F7FAF7]">
+    <TranslationTree><div className="farmer-page min-h-screen bg-[#F7FAF7]">
       {/* Simple header keeps notifications, account greeting, and logout easy to find. */}
       <nav className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
@@ -127,7 +128,7 @@ function FarmerDashboard() {
                 Welcome back, {dashboard?.farmer?.name?.split(" ")[0] || user.name?.split(" ")[0] || "Farmer"}
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-green-50/90 sm:text-base">
-                Your next season starts with a good plan. Check your soil, explore crops, and connect with buyers from one place.
+                Your next season starts with a good plan. Plan your crops and connect with buyers from one place.
               </p>
             </div>
             <Link to="/farmer/list-crop" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-amber-300 px-5 py-3 text-sm font-extrabold text-green-950 shadow-lg shadow-green-950/15 transition hover:-translate-y-0.5 hover:bg-amber-200">
@@ -202,26 +203,10 @@ function FarmerDashboard() {
               </article>
             ))}
 
-            {/* Keep the existing notifications entry alongside farmer tools. */}
-            <article className="group flex flex-col items-start rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-6 shadow-[0_8px_24px_rgba(24,70,42,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-xl sm:p-7">
-              <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-2xl ring-1 ring-amber-200 transition group-hover:rotate-3 group-hover:scale-105">
-                🔔
-              </span>
-              <h3 className="text-lg font-extrabold tracking-tight text-gray-900">Notifications</h3>
-              <p className="mt-2 flex-1 text-sm leading-6 text-gray-600">
-                Read updates about buyers and your crop requests.
-              </p>
-              <Link
-                to="/farmer/notifications"
-                className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-green-950 shadow-md transition hover:bg-amber-300"
-              >
-                View Notifications ({unreadCount} unread) →
-              </Link>
-            </article>
           </div>
         </section>
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function AdminBuyers() {
   const { records, updateRecord } = useAdminCollection("buyers");
@@ -12,7 +13,7 @@ function AdminBuyers() {
   const selectedRecord = records.find((buyer) => buyer.id === selectedId);
 
   return (
-    <AdminLayout title="Buyer Management" subtitle="Search business profiles and manage buyer status.">
+    <TranslationTree><AdminLayout title="Buyer Management" subtitle="Search business profiles and manage buyer status.">
       <label className="mb-5 block max-w-xl">
         <span className="mb-2 block text-sm font-semibold text-emerald-50/85">Search business or location</span>
         <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search buyers..." className="w-full rounded-xl border border-emerald-100/20 bg-[#194a36] px-4 py-3 font-semibold text-emerald-50 shadow-lg shadow-black/10 placeholder:text-emerald-100/45 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50" />
@@ -61,7 +62,7 @@ function AdminBuyers() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </AdminLayout></TranslationTree>
   );
 }
 

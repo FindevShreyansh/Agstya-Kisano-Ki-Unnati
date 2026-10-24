@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 // Local sample requests let buyers review farmer interest without a backend.
 const initialRequests = [
@@ -98,7 +99,7 @@ function BuyerProcurement() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
+    <TranslationTree><div className="min-h-screen bg-[#F7FAF7] flex flex-col">
       <nav className="bg-white border-b border-green-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
@@ -252,7 +253,7 @@ function BuyerProcurement() {
       <footer className="text-center py-6 text-sm text-gray-400 border-t border-gray-100 bg-white">
         AGSTYA – Kisano Ki Unnati • Empowering Farmers & Buyers 🌱
       </footer>
-    </div>
+    </div></TranslationTree>
   );
 }
 

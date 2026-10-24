@@ -3,6 +3,7 @@ import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
 import { getSoilBookings, saveSoilBookings } from "../data/soilBookings";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const activityItems = [
   { icon: "👨‍🌾", text: "New farmer Ramesh Kumar registered", date: "Oct 7, 2026 · 10:24 AM" },
@@ -86,7 +87,7 @@ function AdminDashboard() {
   ];
 
   return (
-    <AdminLayout
+    <TranslationTree><AdminLayout
       title="AGSTYA Admin Dashboard"
       subtitle="A clear view of the people, produce and partnerships powering our agricultural network."
     >
@@ -341,7 +342,7 @@ function AdminDashboard() {
           </>
         )}
       </section>
-    </AdminLayout>
+    </AdminLayout></TranslationTree>
   );
 }
 

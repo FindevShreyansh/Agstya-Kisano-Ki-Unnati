@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const STORAGE_KEY = "agstya_buyer_profile";
 
@@ -122,7 +123,7 @@ function BuyerProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7FAF7] flex flex-col">
+    <TranslationTree><div className="min-h-screen bg-[#F7FAF7] flex flex-col">
       {/* Top Navbar */}
       <nav className="bg-white border-b border-green-100 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -506,7 +507,7 @@ function BuyerProfile() {
       <footer className="text-center py-6 text-sm text-gray-400 border-t border-gray-100 bg-white mt-auto">
         AGSTYA – Kisano Ki Unnati • Empowering Farmers & Buyers 🌱
       </footer>
-    </div>
+    </div></TranslationTree>
   );
 }
 

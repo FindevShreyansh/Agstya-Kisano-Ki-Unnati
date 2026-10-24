@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const roles = [
   {
@@ -31,7 +32,7 @@ function RoleSelection() {
   const navigate = useNavigate();
 
   return (
-    <div className="role-selection-page">
+    <TranslationTree><div className="role-selection-page">
       <header className="role-select-nav">
         <a href="/" className="role-brand" aria-label="AGSTYA home">
           <img src="/agstya-logo.png" alt="AGSTYA" />
@@ -74,7 +75,7 @@ function RoleSelection() {
         <span>AGSTYA <i>—</i> KISANO KI UNNATI</span>
         <span>Tools for a more informed, connected farming journey.</span>
       </footer>
-    </div>
+    </div></TranslationTree>
   );
 }
 

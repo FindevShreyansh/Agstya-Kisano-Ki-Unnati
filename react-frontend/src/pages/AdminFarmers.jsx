@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function AdminFarmers() {
   const { records, updateRecord } = useAdminCollection("farmers");
@@ -12,7 +13,7 @@ function AdminFarmers() {
   const selectedRecord = records.find((farmer) => farmer.id === selectedId);
 
   return (
-    <AdminLayout title="Farmer Management" subtitle="Search farmer profiles and manage account status.">
+    <TranslationTree><AdminLayout title="Farmer Management" subtitle="Search farmer profiles and manage account status.">
       <label className="mb-5 block max-w-xl">
         <span className="mb-2 block text-sm font-semibold text-emerald-50/85">Search name or location</span>
         <input
@@ -72,7 +73,7 @@ function AdminFarmers() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </AdminLayout></TranslationTree>
   );
 }
 

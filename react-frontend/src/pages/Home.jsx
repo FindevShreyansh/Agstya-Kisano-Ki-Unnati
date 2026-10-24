@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function Home() {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ function Home() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div ref={pageRef} className="home-redesign min-h-screen bg-[#F7FAF7] text-gray-800">
+    <TranslationTree><div ref={pageRef} className="home-redesign min-h-screen bg-[#F7FAF7] text-gray-800">
       {/* Navbar */}
       <nav ref={navRef} className="redesign-nav sticky top-0 z-50 px-5 md:px-10">
         <div className="redesign-nav-inner mx-auto grid min-h-[78px] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
@@ -421,7 +422,7 @@ function Home() {
         <a href="#top" className= "back-to-top">Back to top ↑</a>
       </footer>
 
-    </div>
+    </div></TranslationTree>
   );
 }
 

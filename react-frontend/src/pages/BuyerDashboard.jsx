@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../hooks/useNotifications";
 import { clearSession } from "../api";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function BuyerDashboard() {
   const navigate = useNavigate();
@@ -43,17 +44,16 @@ function BuyerDashboard() {
       action: "Manage Profile",
     },
     {
-      title: "Notifications",
-      description: "See updates about farmer interest, crop matches and requests.",
-      icon: "🔔",
-      link: "/buyer/notifications",
-      action: `View Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`,
-      highlight: true,
+      title: "Buyer Support",
+      description: "Ask for help with listings, purchase requests, or your account.",
+      icon: "💬",
+      link: "/buyer/support",
+      action: "Get Support",
     },
   ];
 
   return (
-    <div className="farmer-page min-h-screen bg-[#F7FAF7]">
+    <TranslationTree><div className="farmer-page min-h-screen bg-[#F7FAF7]">
       <nav className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <img src="/agstya-logo.png" alt="AGSTYA Logo" className="h-[70px] w-auto max-w-full object-contain shrink-0" />
@@ -128,7 +128,7 @@ function BuyerDashboard() {
           </div>
         </section>
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

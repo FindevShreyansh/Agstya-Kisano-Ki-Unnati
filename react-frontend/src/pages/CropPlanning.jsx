@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 function CropPlanning() {
 
@@ -45,7 +46,7 @@ const [formError, setFormError] = useState("");
 };
 
   return (
-    <div className="farmer-page min-h-screen bg-[#F7FAF7]">
+    <TranslationTree><div className="farmer-page min-h-screen bg-[#F7FAF7]">
 
       {/* Navbar */}
       <nav className="sticky top-0 z-20 border-b border-green-100 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6">
@@ -227,7 +228,7 @@ const [formError, setFormError] = useState("");
         </div>
 
       </main>
-    </div>
+    </div></TranslationTree>
   );
 }
 

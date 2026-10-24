@@ -16,6 +16,7 @@ app.use('/api/soil',      require('./routes/soil'));
 app.use('/api/market',    require('./routes/market'));
 app.use('/api/users',     require('./routes/users'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/support',   require('./routes/support'));
 
 // ---- Health check ----
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));

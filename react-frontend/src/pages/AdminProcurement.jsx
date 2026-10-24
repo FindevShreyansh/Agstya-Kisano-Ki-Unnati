@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
+import { TranslationTree } from "../i18n/TranslationTree";
 
 const procurementStatuses = [
   "Pending",
@@ -28,7 +29,7 @@ function AdminProcurement() {
   const selectedRecord = records.find((record) => record.id === selectedId);
 
   return (
-    <AdminLayout title="Procurement Monitoring" subtitle="Review procurement requests and update their progress.">
+    <TranslationTree><AdminLayout title="Procurement Monitoring" subtitle="Review procurement requests and update their progress.">
       <div className="mb-5 max-w-xs">
         <label htmlFor="procurement-filter" className="mb-2 block text-sm font-semibold text-emerald-50/85">Filter by status</label>
         <select id="procurement-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="w-full rounded-xl border border-emerald-100/20 bg-[#f8f6ed] px-4 py-3 text-[#19392a] shadow-lg shadow-black/10 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
@@ -84,7 +85,7 @@ function AdminProcurement() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </AdminLayout></TranslationTree>
   );
 }
 
