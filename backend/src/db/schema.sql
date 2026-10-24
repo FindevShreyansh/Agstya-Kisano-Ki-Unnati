@@ -148,3 +148,108 @@ CREATE TABLE IF NOT EXISTS purchase_requests (
   FOREIGN KEY (buyer_id)   REFERENCES users(id),
   FOREIGN KEY (listing_id) REFERENCES crop_listings(id)
 );
+
+-- ---- Bulk procurement and trust ----
+SET @available_quantity_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'crop_listings'
+    AND column_name = 'available_quantity'
+);
+SET @available_quantity_sql = IF(
+  @available_quantity_exists = 0,
+  'ALTER TABLE crop_listings ADD COLUMN available_quantity DECIMAL(10,2) NULL',
+  'SELECT 1'
+);
+PREPARE add_available_quantity FROM @available_quantity_sql;
+EXECUTE add_available_quantity;
+DEALLOCATE PREPARE add_available_quantity;
+
+CREATE TABLE IF NOT EXISTS place_catalog (
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  state      VARCHAR(100) NOT NULL,
+  district   VARCHAR(100) NOT NULL,
+  city       VARCHAR(100) NOT NULL,
+  aliases    VARCHAR(500),
+  UNIQUE KEY place_name (state, district, city)
+);
+
+CREATE TABLE IF NOT EXISTS bulk_requirements (
+  id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
+  buyer_id              BIGINT NOT NULL,
+  crop_name             VARCHAR(100) NOT NULL,
+  variety               VARCHAR(100),
+  quantity_kg           DECIMAL(12,2) NOT NULL,
+  minimum_quality       ENUM('A','B','C') NOT NULL,
+  delivery_state        VARCHAR(100) NOT NULL,
+  delivery_district     VARCHAR(100) NOT NULL,
+  delivery_city         VARCHAR(100) NOT NULL,
+  delivery_date         DATE NOT NULL,
+  max_budget            DECIMAL(12,2),
+  max_farmers           INT DEFAULT 6,
+  partial_fulfillment   TINYINT(1) DEFAULT 0,
+  status                ENUM('DRAFT','PLANNED','CONFIRMED','COMPLETED','CANCELLED') DEFAULT 'DRAFT',
+  created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS bulk_plans (
+  id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
+  requirement_id        BIGINT NOT NULL,
+  plan_type             ENUM('LOWEST_COST','BALANCED','FEWEST_FARMERS') NOT NULL,
+  requested_quantity_kg DECIMAL(12,2) NOT NULL,
+  allocated_quantity_kg DECIMAL(12,2) NOT NULL,
+  remaining_quantity_kg DECIMAL(12,2) NOT NULL,
+  farmer_count          INT NOT NULL,
+  produce_subtotal      DECIMAL(12,2) NOT NULL,
+  logistics_estimate    DECIMAL(12,2) NOT NULL,
+  total_cost            DECIMAL(12,2) NOT NULL,
+  score                 DECIMAL(14,2) NOT NULL,
+  selected              TINYINT(1) DEFAULT 0,
+  created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (requirement_id) REFERENCES bulk_requirements(id)
+);
+
+CREATE TABLE IF NOT EXISTS bulk_allocations (
+  id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+  plan_id        BIGINT NOT NULL,
+  listing_id     BIGINT NOT NULL,
+  farmer_id      BIGINT NOT NULL,
+  quantity_kg    DECIMAL(12,2) NOT NULL,
+  unit_price     DECIMAL(12,2) NOT NULL,
+  subtotal       DECIMAL(12,2) NOT NULL,
+  distance_km    DECIMAL(10,2) NOT NULL,
+  status         ENUM('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING',
+  created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (plan_id) REFERENCES bulk_plans(id),
+  FOREIGN KEY (listing_id) REFERENCES crop_listings(id),
+  FOREIGN KEY (farmer_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS procurement_orders (
+  id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
+  buyer_id              BIGINT NOT NULL,
+  farmer_id             BIGINT NOT NULL,
+  listing_id            BIGINT NOT NULL,
+  allocation_id         BIGINT,
+  quantity_kg           DECIMAL(12,2) NOT NULL,
+  status                ENUM('CONFIRMED','IN_PROGRESS','COMPLETED','CANCELLED','DISPUTED','RESOLVED') DEFAULT 'CONFIRMED',
+  cancellation_actor    ENUM('BUYER','FARMER','PLATFORM'),
+  dispute_outcome       ENUM('BUYER_FAVOR','FARMER_FAVOR','DISMISSED'),
+  created_at            DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at            DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (buyer_id) REFERENCES users(id),
+  FOREIGN KEY (farmer_id) REFERENCES users(id),
+  FOREIGN KEY (listing_id) REFERENCES crop_listings(id),
+  FOREIGN KEY (allocation_id) REFERENCES bulk_allocations(id)
+);
+
+CREATE TABLE IF NOT EXISTS procurement_order_events (
+  id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+  order_id    BIGINT NOT NULL,
+  event_type  ENUM('CONFIRMED','IN_PROGRESS','COMPLETED','CANCELLED','DISPUTED','RESOLVED') NOT NULL,
+  actor_role  ENUM('BUYER','FARMER','ADMIN','PLATFORM') NOT NULL,
+  notes       TEXT,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (order_id) REFERENCES procurement_orders(id)
+);

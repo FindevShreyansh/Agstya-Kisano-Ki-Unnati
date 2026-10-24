@@ -25,6 +25,7 @@ import AdminBuyers from "./pages/AdminBuyers";
 import AdminCropListings from "./pages/AdminCropListings";
 import AdminProcurement from "./pages/AdminProcurement";
 import BookExpert from "./pages/BookExpert";
+import BulkProcurement from "./pages/BulkProcurement";
 
 function App() {
   const location = useLocation();
@@ -51,6 +52,7 @@ function App() {
       <Route path="/buyer/login" element={<BuyerLogin />} />
       <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
       <Route path="/buyer/post-requirement" element={<PostRequirement />} />
+      <Route path="/buyer/bulk-procurement" element={<BulkProcurement />} />
       <Route path="/buyer/crops" element={<FarmerCrops />} />
       <Route path="/buyer/procurement" element={<BuyerProcurement />} />
       <Route path="/buyer/profile" element={<BuyerProfile />} />

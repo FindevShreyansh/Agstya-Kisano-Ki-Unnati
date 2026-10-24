@@ -20,6 +20,7 @@ router.post('/listings', authenticate, authorize('FARMER'), async (req, res) => 
      quality, imageUrl || null, expectedPrice || null]
   );
   const listingId = listRes.insertId;
+  await pool.query('UPDATE crop_listings SET available_quantity = quantity WHERE id = ?', [listingId]);
 
   // Auto-generate Platform Assured Price
   const offer = await calculateOffer(listingId, cropName, quality);
@@ -31,10 +32,19 @@ router.post('/listings', authenticate, authorize('FARMER'), async (req, res) => 
 // GET /api/market/listings  — search/filter (any authenticated user)
 router.get('/listings', authenticate, async (req, res) => {
   const { q, crop, state, district, quality, minPrice, maxPrice } = req.query;
-  let sql = `SELECT l.*, u.name AS farmer_name, po.platform_price
+  let sql = `SELECT l.*, u.name AS farmer_name, po.platform_price,
+             COALESCE(ts.positive_events, 0) AS trust_positive_events,
+             COALESCE(ts.negative_events, 0) AS trust_negative_events
              FROM crop_listings l
              JOIN users u ON u.id = l.farmer_id
              LEFT JOIN price_offers po ON po.listing_id = l.id
+             LEFT JOIN (
+               SELECT farmer_id,
+                 SUM(CASE WHEN status = 'COMPLETED' OR (status = 'RESOLVED' AND dispute_outcome = 'FARMER_FAVOR') THEN 1 ELSE 0 END) AS positive_events,
+                 SUM(CASE WHEN (status = 'CANCELLED' AND cancellation_actor = 'FARMER')
+                              OR (status = 'RESOLVED' AND dispute_outcome = 'BUYER_FAVOR') THEN 1 ELSE 0 END) AS negative_events
+               FROM procurement_orders GROUP BY farmer_id
+             ) ts ON ts.farmer_id = l.farmer_id
              WHERE l.status = 'AVAILABLE'`;
   const params = [];
 
@@ -169,10 +179,18 @@ router.patch('/purchase-requests/:id/status', authenticate, authorize('FARMER'),
   if (rows.length === 0) return res.status(404).json({ status: 404, message: 'Purchase request not found' });
   if (rows[0].farmer_id !== req.user.id) return res.status(403).json({ status: 403, message: 'Forbidden' });
 
-  await pool.query('UPDATE purchase_requests SET status = ? WHERE id = ?', [status, req.params.id]);
   if (status === 'ACCEPTED') {
-    await pool.query("UPDATE crop_listings SET status = 'RESERVED' WHERE id = ?", [rows[0].listing_id]);
+    const available = Number(rows[0].available_quantity ?? rows[0].quantity);
+    if (available < Number(rows[0].quantity)) {
+      return res.status(409).json({ status: 409, message: 'Listing does not have enough available quantity' });
+    }
+    const remaining = available - Number(rows[0].quantity);
+    await pool.query(
+      "UPDATE crop_listings SET available_quantity = ?, status = ? WHERE id = ?",
+      [remaining, remaining === 0 ? 'RESERVED' : 'AVAILABLE', rows[0].listing_id]
+    );
   }
+  await pool.query('UPDATE purchase_requests SET status = ? WHERE id = ?', [status, req.params.id]);
   const [updated] = await pool.query('SELECT * FROM purchase_requests WHERE id = ?', [req.params.id]);
   res.json(toPRResponse(updated[0]));
 });
@@ -229,12 +247,16 @@ async function calculateOffer(listingId, cropName, quality) {
 
 // ---- Response helpers ----
 function toListingResponse(l) {
+  const positiveEvents = Number(l.trust_positive_events || 0);
+  const negativeEvents = Number(l.trust_negative_events || 0);
+  const trustScore = Number(((1 + positiveEvents) / (2 + positiveEvents + negativeEvents)).toFixed(4));
   return {
     id:            l.id,
     farmerId:      l.farmer_id,
     cropName:      l.crop_name,
     variety:       l.variety,
     quantity:      parseFloat(l.quantity),
+    availableQuantity: l.available_quantity == null ? parseFloat(l.quantity) : parseFloat(l.available_quantity),
     unit:          l.unit,
     harvestDate:   l.harvest_date,
     location:      l.location,
@@ -246,6 +268,12 @@ function toListingResponse(l) {
     status:        l.status,
     verified:      !!l.verified,
     createdAt:     l.created_at,
+    trust: {
+      score: trustScore,
+      band: trustScore < 0.4 ? 'LOW' : trustScore < 0.75 ? 'MEDIUM' : 'HIGH',
+      positiveEvents,
+      negativeEvents,
+    },
   };
 }
 

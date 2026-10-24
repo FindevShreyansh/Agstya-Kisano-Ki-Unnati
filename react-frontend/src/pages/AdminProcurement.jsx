@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { useAdminCollection } from "../data/adminData";
+import { apiRequest } from "../api";
 
 const procurementStatuses = [
   "Pending",
@@ -24,11 +25,40 @@ function AdminProcurement() {
   const { records, updateRecord } = useAdminCollection("procurement");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedId, setSelectedId] = useState(null);
+  const [disputes, setDisputes] = useState([]);
+  const [disputeError, setDisputeError] = useState("");
   const filteredRecords = statusFilter === "All" ? records : records.filter((record) => record.status === statusFilter);
   const selectedRecord = records.find((record) => record.id === selectedId);
 
+  const loadDisputes = () => apiRequest("/bulk/orders/disputes").then(setDisputes).catch((error) => setDisputeError(error.message));
+  useEffect(() => { loadDisputes(); }, []);
+
+  const resolveDispute = async (id, outcome) => {
+    try {
+      await apiRequest(`/bulk/orders/${id}/resolve`, { method: "PATCH", body: { outcome, notes: "Reviewed by platform administrator." } });
+      loadDisputes();
+    } catch (error) {
+      setDisputeError(error.message);
+    }
+  };
+
   return (
     <AdminLayout title="Procurement Monitoring" subtitle="Review procurement requests and update their progress.">
+      {disputeError && <p className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{disputeError}</p>}
+      {disputes.length > 0 && (
+        <section className="mb-6 rounded-[22px] bg-[#f8f6ed] p-5 shadow-xl shadow-black/20 ring-1 ring-inset ring-amber-200/20">
+          <h2 className="text-lg font-bold text-[#19392a]">Open trust disputes</h2>
+          <p className="mt-1 text-sm text-slate-500">Resolve only after reviewing the delivery or order evidence.</p>
+          <div className="mt-4 space-y-3">
+            {disputes.map((dispute) => (
+              <div key={dispute.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#e8eee2] p-4 text-sm">
+                <div><p className="font-bold text-[#19392a]">Order #{dispute.id} · {dispute.crop_name}</p><p className="text-slate-600">{dispute.farmer_name} → {dispute.buyer_name} · {Number(dispute.quantity_kg).toLocaleString()} kg</p></div>
+                <div className="flex gap-2"><button type="button" onClick={() => resolveDispute(dispute.id, "BUYER_FAVOR")} className="rounded-lg bg-red-100 px-3 py-2 text-xs font-bold text-red-800">Buyer favour</button><button type="button" onClick={() => resolveDispute(dispute.id, "FARMER_FAVOR")} className="rounded-lg bg-green-100 px-3 py-2 text-xs font-bold text-green-800">Farmer favour</button><button type="button" onClick={() => resolveDispute(dispute.id, "DISMISSED")} className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-gray-700">Dismiss</button></div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       <div className="mb-5 max-w-xs">
         <label htmlFor="procurement-filter" className="mb-2 block text-sm font-semibold text-emerald-50/85">Filter by status</label>
         <select id="procurement-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="w-full rounded-xl border border-emerald-100/20 bg-[#f8f6ed] px-4 py-3 text-[#19392a] shadow-lg shadow-black/10 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
